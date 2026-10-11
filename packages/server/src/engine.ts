@@ -41,7 +41,8 @@ export class EngineError extends Error {
 export interface EngineOptions {
   show: Show;
   save: (show: Show) => void;
-  createConsole: (settings: ConsoleSettings) => Console | null;
+  // throws with a message for the operator if the settings can't make a desk
+  createConsole: (settings: ConsoleSettings) => Console;
 }
 
 // The single source of truth. Every screen and the HTTP API act through it,
@@ -90,9 +91,11 @@ export class Engine extends EventEmitter<{ change: [] }> {
 
   connect(): void {
     this.disconnect();
-    const c = this.#createConsole(this.#show.console);
-    if (!c) {
-      this.#info = `No driver for "${this.#show.console.type}" yet`;
+    let c: Console;
+    try {
+      c = this.#createConsole(this.#show.console);
+    } catch (e) {
+      this.#info = e instanceof Error ? e.message : String(e);
       this.#changed();
       return;
     }
