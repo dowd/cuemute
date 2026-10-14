@@ -116,6 +116,8 @@ Select **Cue sheet** at the top of the screen. It opens in a new tab with two la
 - **Cue list**: one row per scene, under its group, with the line, what the scene mutes and opens, and notes.
 - **Mic plot**: scenes down the side and channels across the top, with **M** (muted) or **O** (on). By default it shows only what each scene changes. Turn on **Tracked state** to show every channel's state after each scene: the scene's own changes are bold, and states carried from earlier are grey. A channel is blank until the first scene that sets it.
 
+To choose what prints, use the checkboxes under the layout buttons: **Columns** for the cue list, and **Channels** for the mic plot, for example to leave out the band. Hiding a channel only removes its column; tracked state still counts every scene. New channels are included until you untick them. Your choices are kept in the page address, so bookmark it to reuse them.
+
 Select **Print**. To get a PDF, choose **Save as PDF** in the print dialog. The mic plot prints in landscape.
 
 The sheet follows the show live, so edits appear on it straight away.

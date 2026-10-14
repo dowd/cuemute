@@ -237,7 +237,10 @@ table td { padding: 3px 4px; }
 /* cue sheet: dark like the rest on screen, black on white on paper */
 .cue-sheet { padding: 16px 24px; }
 .sheet-controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
-.sheet-controls .check { display: flex; align-items: center; gap: 6px; }
+.sheet-controls .check { display: flex; flex-direction: row; align-items: center; gap: 6px; white-space: nowrap; margin: 0; }
+.sheet-controls.picker { gap: 6px 14px; font-size: 13px; }
+.sheet-controls.picker button { font-size: 12px; padding: 2px 8px; }
+.picker-actions { display: flex; gap: 4px; }
 .sheet-head h1 { margin: 0 0 4px; font-size: 22px; }
 .sheet-head p { margin: 0 0 12px; color: var(--muted-text); font-size: 13px; }
 .sheet { border-collapse: collapse; width: 100%; font-size: 13px; }
