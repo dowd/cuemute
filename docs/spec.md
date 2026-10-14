@@ -36,6 +36,7 @@ interface Scene {
   id: string;        // stable internal id
   number: string;    // free text label, e.g. "12A"
   name: string;
+  group: string;     // free text, e.g. "Act 1 Sc 2 Bakery"; blank for none
   lineRef: string;   // line or cue reference the operator reads, e.g. "p34 'Is that you?'"
   notes: string;
   colour: string;
@@ -44,6 +45,7 @@ interface Scene {
 ```
 
 - The order of scenes is their position in the list. `number` is a label only, because theatre numbers such as "12A" or "12.5" do not sort reliably. The app warns about duplicate numbers.
+- `group` is a label, not a container. Neighbouring scenes with the same group show under one collapsible heading, and the order is still the flat list, so playback, moving and Record don't change. A new or recorded scene takes the group of the scene it is inserted after. Renaming a group renames it on every scene that has it.
 - A channel that no scene mentions is never touched. This is what makes a late band mic free: leave it out of every scene.
 - Firing a scene sends its changes to the desk, mutes first and unmutes second, so two swapped mics are never open at the same time.
 

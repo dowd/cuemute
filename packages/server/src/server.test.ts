@@ -80,6 +80,15 @@ describe("engine with the simulated desk", () => {
     expect(saved.length).toBe(1);
   });
 
+  it("puts new and recorded scenes in the group of the scene before them", () => {
+    engine.renameGroup("", "Bakery"); // every scene starts ungrouped
+    expect(engine.addScene("s1", {}).group).toBe("Bakery");
+    expect(engine.addScene("s1", { group: "Woods" }).group).toBe("Woods");
+    engine.go();
+    desk.deskChange(inputTarget(3), false);
+    expect(engine.record().group).toBe("Bakery");
+  });
+
   it("blocks editing in Show mode but still runs the show", () => {
     engine.setMode("show");
     expect(() => engine.addScene(null, {})).toThrow("Edit mode");

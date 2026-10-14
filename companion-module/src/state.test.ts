@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest'
-import { channelChoices, definitionsKey, sceneChoices, variableDefinitions, variableValues, type Snapshot } from './state.js'
+import {
+	channelChoices,
+	definitionsKey,
+	sceneChoices,
+	sceneGroups,
+	variableDefinitions,
+	variableValues,
+	type Snapshot,
+} from './state.js'
 
 const snapshot = (): Snapshot => ({
 	show: {
@@ -9,8 +17,8 @@ const snapshot = (): Snapshot => ({
 			{ number: 2, name: '' },
 		],
 		scenes: [
-			{ id: 'a', number: '1', name: 'Prologue', lineRef: 'p1', notes: '' },
-			{ id: 'b', number: '1A', name: 'Witch', lineRef: "p6 'Greens!'", notes: 'fast' },
+			{ id: 'a', number: '1', name: 'Prologue', group: 'Act 1', lineRef: 'p1', notes: '' },
+			{ id: 'b', number: '1A', name: 'Witch', group: 'Act 1', lineRef: "p6 'Greens!'", notes: 'fast' },
 			{ id: 'c', number: '', name: '', lineRef: '', notes: '' },
 		],
 	},
@@ -29,9 +37,11 @@ describe('variables', () => {
 			current: '1 Prologue',
 			current_number: '1',
 			current_name: 'Prologue',
+			current_group: 'Act 1',
 			next: '1A Witch',
 			next_number: '1A',
 			next_name: 'Witch',
+			next_group: 'Act 1',
 			next_line: "p6 'Greens!'",
 			next_notes: 'fast',
 			ch_1_name: 'Baker',
@@ -57,8 +67,8 @@ describe('variables', () => {
 describe('dropdowns', () => {
 	it('lists scenes by label, falling back to position', () => {
 		expect(sceneChoices(snapshot())).toEqual([
-			{ id: 'a', label: '1 Prologue' },
-			{ id: 'b', label: '1A Witch' },
+			{ id: 'a', label: 'Act 1 › 1 Prologue' },
+			{ id: 'b', label: 'Act 1 › 1A Witch' },
 			{ id: 'c', label: 'Scene 3' },
 		])
 		expect(channelChoices(snapshot())).toEqual([
@@ -75,5 +85,15 @@ describe('dropdowns', () => {
 		expect(definitionsKey(s)).toBe(key)
 		s.show.scenes[0]!.name = 'Opening'
 		expect(definitionsKey(s)).not.toBe(key)
+		const renamed = definitionsKey(s)
+		s.show.scenes[2]!.group = 'Act 1'
+		expect(definitionsKey(s)).not.toBe(renamed)
+	})
+
+	it('runs neighbouring scenes into groups, treating a missing group as none', () => {
+		expect(sceneGroups(snapshot()).map((r) => [r.group, r.scenes.map((x) => x.id).join('')])).toEqual([
+			['Act 1', 'ab'],
+			['', 'c'],
+		])
 	})
 })

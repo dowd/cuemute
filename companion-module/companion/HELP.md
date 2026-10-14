@@ -32,7 +32,7 @@ If cuemute refuses a command, for example GO while the desk is offline, the reas
 
 ### Variables
 
-`show`, `mode`, `desk`, `current`, `current_number`, `current_name`, `next`, `next_number`, `next_name`, `next_line`, `next_notes`, and for each show channel `ch_N_name` and `ch_N_muted`.
+`show`, `mode`, `desk`, `current`, `current_number`, `current_name`, `current_group`, `next`, `next_number`, `next_name`, `next_group`, `next_line`, `next_notes`, and for each show channel `ch_N_name` and `ch_N_muted`.
 
 ### Presets
 
@@ -40,6 +40,6 @@ If cuemute refuses a command, for example GO while the desk is offline, the reas
 
 The **Next cue line** preset suits the Stream Deck Neo's info strip. In Companion the strip is the wide place in the bottom row, second column. Drag the preset there. The strip can't be pressed, so the preset has no actions. It turns red when GO won't work.
 - **Channels**: one button per show channel. Red when muted. Press to toggle.
-- **Scenes**: one button per scene. Green when it is the last fired.
+- **Scenes**: one button per scene, in a section per scene group. Green when it is the last fired.
 
 The scene and channel lists come from the show. They update when you edit the show in cuemute.

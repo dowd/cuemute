@@ -5,6 +5,8 @@ import {
   deleteScene,
   duplicateNumbers,
   go,
+  groupForInsert,
+  groupRuns,
   initialCursor,
   inputTarget,
   insertScene,
@@ -15,6 +17,8 @@ import {
   parseShow,
   previewScene,
   recordChanges,
+  renameGroup,
+  scenePatchSchema,
   setChannels,
   stateAtScene,
   targetKey,
@@ -148,5 +152,42 @@ describe("show editing", () => {
     const show = { ...base, channels: [{ number: 1, name: "Ana" }] };
     expect(parseShow(JSON.parse(JSON.stringify(show)))).toEqual(show);
     expect(() => parseShow({ ...show, schemaVersion: 2 })).toThrow();
+  });
+});
+
+describe("groups", () => {
+  const g = (id: string, group: string): Scene => newScene({ number: id, group }, id);
+  const show = { ...createShow(), scenes: [g("a", "Sc 1"), g("b", "Sc 1"), g("c", ""), g("d", "Sc 2"), g("e", "Sc 1")] };
+
+  it("runs neighbouring scenes with the same group together", () => {
+    expect(groupRuns(show.scenes).map((r) => [r.group, r.start, r.scenes.map((s) => s.id).join("")])).toEqual([
+      ["Sc 1", 0, "ab"],
+      ["", 2, "c"],
+      ["Sc 2", 3, "d"],
+      ["Sc 1", 4, "e"],
+    ]);
+  });
+
+  it("renames a group everywhere it is used", () => {
+    expect(renameGroup(show, "Sc 1", "Bakery").scenes.map((s) => s.group)).toEqual([
+      "Bakery",
+      "Bakery",
+      "",
+      "Sc 2",
+      "Bakery",
+    ]);
+  });
+
+  it("gives an inserted scene its neighbour's group", () => {
+    expect(groupForInsert(show, "d")).toBe("Sc 2");
+    expect(groupForInsert(show, null)).toBe("Sc 1");
+    expect(groupForInsert(createShow(), null)).toBe("");
+  });
+
+  it("loads show files from before groups, and patches leave the group alone", () => {
+    const { group: _, ...old } = g("a", "x");
+    const file = { ...createShow(), scenes: [old] };
+    expect(parseShow(file).scenes[0]!.group).toBe("");
+    expect(scenePatchSchema.parse({ name: "New" })).toEqual({ name: "New" });
   });
 });

@@ -85,7 +85,13 @@ export function EditPanel({ snapshot, selected, onSelect, run }: Props) {
             )}
           </div>
           {selected ? (
-            <SceneEditor key={selected.id} scene={selected} channels={snapshot.show.channels} run={run} />
+            <SceneEditor
+              key={selected.id}
+              scene={selected}
+              channels={snapshot.show.channels}
+              groups={[...new Set(snapshot.show.scenes.map((s) => s.group).filter(Boolean))]}
+              run={run}
+            />
           ) : (
             <p className="empty">Select a scene to edit it.</p>
           )}

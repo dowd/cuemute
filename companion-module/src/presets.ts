@@ -2,7 +2,7 @@ import type { CompanionPresetDefinitions, CompanionPresetSection } from '@compan
 import { BLACK, GREEN, RED, WHITE } from './feedbacks.js'
 import type ModuleInstance from './main.js'
 import type { ModuleSchema } from './main.js'
-import { channelName, sceneLabel } from './state.js'
+import { channelName, sceneGroups, sceneLabel } from './state.js'
 
 const DARK = 0x202020
 
@@ -70,23 +70,36 @@ export function UpdatePresets(self: ModuleInstance): void {
 		}
 	}
 
-	const sceneIds: string[] = []
-	for (const [i, s] of (self.snapshot?.show.scenes ?? []).entries()) {
-		const id = `scene_${s.id}`
-		sceneIds.push(id)
-		presets[id] = {
-			type: 'simple',
-			name: `Fire scene ${sceneLabel(s) || i + 1}`,
-			style: { text: sceneLabel(s) || `Scene ${i + 1}`, size: 'auto', color: WHITE, bgcolor: DARK },
-			steps: [{ down: [{ actionId: 'fire_scene', options: { scene: s.id } }], up: [] }],
-			feedbacks: [
-				{
-					feedbackId: 'scene_is',
-					options: { scene: s.id, which: 'current' },
-					style: { bgcolor: GREEN, color: WHITE },
-				},
-			],
+	// one preset section per group of scenes, in show order
+	const sceneSections: CompanionPresetSection<ModuleSchema>[] = []
+	let position = 0
+	for (const [g, run] of sceneGroups(self.snapshot).entries()) {
+		const ids: string[] = []
+		for (const s of run.scenes) {
+			position++
+			const id = `scene_${s.id}`
+			const label = sceneLabel(s) || `Scene ${position}`
+			ids.push(id)
+			presets[id] = {
+				type: 'simple',
+				name: `Fire scene ${label}`,
+				style: { text: label, size: 'auto', color: WHITE, bgcolor: DARK },
+				steps: [{ down: [{ actionId: 'fire_scene', options: { scene: s.id } }], up: [] }],
+				feedbacks: [
+					{
+						feedbackId: 'scene_is',
+						options: { scene: s.id, which: 'current' },
+						style: { bgcolor: GREEN, color: WHITE },
+					},
+				],
+			}
 		}
+		sceneSections.push({
+			id: `scenes_${g}`,
+			name: run.group ? `Scenes: ${run.group}` : 'Scenes',
+			description: 'Fire a scene directly. Green when it is the last fired.',
+			definitions: ids,
+		})
 	}
 
 	const structure: CompanionPresetSection<ModuleSchema>[] = [
@@ -101,12 +114,7 @@ export function UpdatePresets(self: ModuleInstance): void {
 			description: 'One button per show channel. Red when muted on the desk. Press to toggle.',
 			definitions: channelIds,
 		},
-		{
-			id: 'scenes',
-			name: 'Scenes',
-			description: 'Fire a scene directly. Green when it is the last fired.',
-			definitions: sceneIds,
-		},
+		...sceneSections,
 	]
 
 	self.setPresetDefinitions(structure, presets)

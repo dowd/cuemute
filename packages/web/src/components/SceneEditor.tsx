@@ -5,19 +5,21 @@ import type { Run } from "../App.tsx";
 
 export const COLOURS = ["", "#d9534f", "#f0ad4e", "#e6d84a", "#5cb85c", "#4aa3df", "#9b6bd6", "#e377c2", "#888888"];
 
-type TextField = "number" | "name" | "lineRef" | "notes";
+type TextField = "number" | "name" | "group" | "lineRef" | "notes";
 
 interface Props {
   scene: Scene;
   channels: Channel[];
+  groups: string[]; // existing group names, offered while typing
   run: Run;
 }
 
 // Text fields save when they lose focus; colour and changes save on click.
-export function SceneEditor({ scene, channels, run }: Props) {
+export function SceneEditor({ scene, channels, groups, run }: Props) {
   const [draft, setDraft] = useState<Record<TextField, string>>({
     number: scene.number,
     name: scene.name,
+    group: scene.group,
     lineRef: scene.lineRef,
     notes: scene.notes,
   });
@@ -26,7 +28,7 @@ export function SceneEditor({ scene, channels, run }: Props) {
   const commit = (field: TextField) => {
     if (draft[field] !== scene[field]) patch({ [field]: draft[field] });
   };
-  const text = (field: TextField, label: string, multiline = false) => {
+  const text = (field: TextField, label: string, multiline = false, list?: string) => {
     const props = {
       value: draft[field],
       onChange: (e: { target: { value: string } }) => setDraft({ ...draft, [field]: e.target.value }),
@@ -35,7 +37,7 @@ export function SceneEditor({ scene, channels, run }: Props) {
     return (
       <label>
         {label}
-        {multiline ? <textarea rows={3} {...props} /> : <input {...props} />}
+        {multiline ? <textarea rows={3} {...props} /> : <input list={list} {...props} />}
       </label>
     );
   };
@@ -56,6 +58,12 @@ export function SceneEditor({ scene, channels, run }: Props) {
         {text("number", "Number")}
         {text("name", "Name")}
       </div>
+      {text("group", "Group", false, "scene-groups")}
+      <datalist id="scene-groups">
+        {groups.map((g) => (
+          <option key={g} value={g} />
+        ))}
+      </datalist>
       {text("lineRef", "Line / cue")}
       {text("notes", "Notes", true)}
 

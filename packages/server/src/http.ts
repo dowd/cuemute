@@ -62,7 +62,9 @@ export async function buildServer(engine: Engine, options: HttpOptions = {}): Pr
       mode: s.mode,
       connected: s.connection.state === "connected",
       current: label(s.cursor.current),
+      currentGroup: find(s.cursor.current)?.group ?? "",
       next: label(s.cursor.next),
+      nextGroup: find(s.cursor.next)?.group ?? "",
       nextLineRef: find(s.cursor.next)?.lineRef ?? "",
       snapshot: s,
     };
@@ -102,6 +104,11 @@ export async function buildServer(engine: Engine, options: HttpOptions = {}): Pr
   });
   app.delete("/api/scenes/:id", async (req) => {
     engine.deleteScene(idParams.parse(req.params).id);
+    return { ok: true };
+  });
+  app.post("/api/groups/rename", async (req) => {
+    const { from, to } = z.object({ from: z.string(), to: z.string() }).parse(req.body);
+    engine.renameGroup(from, to);
     return { ok: true };
   });
   app.post("/api/scenes/:id/move", async (req) => {

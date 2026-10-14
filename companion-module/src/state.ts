@@ -5,6 +5,7 @@ export interface Scene {
 	id: string
 	number: string
 	name: string
+	group?: string // missing from cuemute versions before groups
 	lineRef: string
 	notes: string
 }
@@ -47,9 +48,11 @@ export function variableDefinitions(s: Snapshot | null): Record<string, { name: 
 		current: { name: 'Last fired scene: number and name' },
 		current_number: { name: 'Last fired scene: number' },
 		current_name: { name: 'Last fired scene: name' },
+		current_group: { name: 'Last fired scene: group' },
 		next: { name: 'Next scene: number and name' },
 		next_number: { name: 'Next scene: number' },
 		next_name: { name: 'Next scene: name' },
+		next_group: { name: 'Next scene: group' },
 		next_line: { name: 'Next scene: line reference' },
 		next_notes: { name: 'Next scene: notes' },
 	}
@@ -70,9 +73,11 @@ export function variableValues(s: Snapshot): Variables {
 		current: sceneLabel(current),
 		current_number: current?.number ?? '',
 		current_name: current?.name ?? '',
+		current_group: current?.group ?? '',
 		next: sceneLabel(next),
 		next_number: next?.number ?? '',
 		next_name: next?.name ?? '',
+		next_group: next?.group ?? '',
 		next_line: next?.lineRef ?? '',
 		next_notes: next?.notes ?? '',
 	}
@@ -93,14 +98,30 @@ export function deskConnected(s: Snapshot | null): boolean {
 
 // Dropdown choices; scene ids are stable across renumbering and moves
 export function sceneChoices(s: Snapshot | null): { id: string; label: string }[] {
-	return (s?.show.scenes ?? []).map((x, i) => ({ id: x.id, label: sceneLabel(x) || `Scene ${i + 1}` }))
+	return (s?.show.scenes ?? []).map((x, i) => {
+		const label = sceneLabel(x) || `Scene ${i + 1}`
+		return { id: x.id, label: x.group ? `${x.group} › ${label}` : label }
+	})
 }
 
 export function channelChoices(s: Snapshot | null): { id: number; label: string }[] {
 	return (s?.show.channels ?? []).map((c) => ({ id: c.number, label: `${c.number} ${channelName(c)}` }))
 }
 
+// Neighbouring scenes with the same group, in show order, as cuemute shows them
+export function sceneGroups(s: Snapshot | null): { group: string; scenes: Scene[] }[] {
+	const runs: { group: string; scenes: Scene[] }[] = []
+	for (const scene of s?.show.scenes ?? []) {
+		const group = scene.group ?? ''
+		const last = runs.at(-1)
+		if (last && last.group === group) last.scenes.push(scene)
+		else runs.push({ group, scenes: [scene] })
+	}
+	return runs
+}
+
 // What decides the action and feedback lists, so they are only resent when it changes
 export function definitionsKey(s: Snapshot | null): string {
+	// scene labels include the group, so a regrouped scene changes this too
 	return JSON.stringify([sceneChoices(s), channelChoices(s)])
 }

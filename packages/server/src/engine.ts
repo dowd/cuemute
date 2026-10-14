@@ -6,6 +6,7 @@ import {
   go,
   initialCursor,
   inputTarget,
+  groupForInsert,
   insertScene,
   jump,
   moveScene,
@@ -13,6 +14,7 @@ import {
   normalizeCursor,
   orderForSending,
   recordChanges,
+  renameGroup,
   setChannels,
   targetKey,
   updateScene,
@@ -184,8 +186,9 @@ export class Engine extends EventEmitter<{ change: [] }> {
     if (!this.#synced) throw new EngineError(409, "Still reading the desk");
     const changes = recordChanges(this.#live, this.#atLastGo, this.#show.channels);
     if (changes.length === 0) throw new EngineError(409, "Nothing has changed since the last GO");
-    const scene = newScene({ changes });
-    this.#edit(insertScene(this.#show, this.#cursor.current, scene));
+    const afterId = this.#cursor.current;
+    const scene = newScene({ changes, group: groupForInsert(this.#show, afterId) });
+    this.#edit(insertScene(this.#show, afterId, scene));
     // the recorded state is the new baseline, as if this scene had just fired
     this.#atLastGo = { ...this.#live };
     this.#cursor = { current: scene.id, next: this.#cursor.next };
@@ -195,7 +198,7 @@ export class Engine extends EventEmitter<{ change: [] }> {
 
   addScene(afterId: string | null, fields: ScenePatch): Scene {
     this.#requireEdit();
-    const scene = newScene(fields);
+    const scene = newScene({ group: groupForInsert(this.#show, afterId), ...fields });
     this.#edit(insertScene(this.#show, afterId, scene));
     return scene;
   }
@@ -221,6 +224,11 @@ export class Engine extends EventEmitter<{ change: [] }> {
   setChannels(channels: Channel[]): void {
     this.#requireEdit();
     this.#edit(setChannels(this.#show, channels));
+  }
+
+  renameGroup(from: string, to: string): void {
+    this.#requireEdit();
+    this.#edit(renameGroup(this.#show, from, to.trim()));
   }
 
   renameShow(name: string): void {

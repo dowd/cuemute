@@ -58,6 +58,7 @@ export function App() {
           selectedId={selectedId}
           onSelect={setSelectedId}
           viewOnly={viewOnly}
+          editing={editing}
           run={run}
         />
         <section className="centre">

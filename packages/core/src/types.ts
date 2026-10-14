@@ -16,6 +16,9 @@ export interface Scene {
   id: string;
   number: string; // free-text label such as "12A"; order comes from position
   name: string;
+  // free-text group, e.g. "Act 1 Sc 2 Bakery"; neighbouring scenes with the
+  // same group show under one heading. Blank for no group.
+  group: string;
   lineRef: string;
   notes: string;
   colour: string;

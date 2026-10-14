@@ -46,7 +46,9 @@ GO, Back, Jump, single-channel mute and mode changes all work in Show mode. Requ
   "mode": "show",
   "connected": true,
   "current": "2 Bakery",
+  "currentGroup": "Act 1 Sc 2",
   "next": "2A Witch enters",
+  "nextGroup": "Act 1 Sc 2",
   "nextLineRef": "p6 knock",
   "snapshot": { "...": "full state" }
 }

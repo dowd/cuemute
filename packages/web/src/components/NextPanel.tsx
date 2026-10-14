@@ -12,6 +12,7 @@ export function NextPanel({ snapshot }: { snapshot: Snapshot }) {
   }
   return (
     <div className="next-panel" style={{ borderLeftColor: next.colour || undefined }}>
+      {next.group && <div className="group">{next.group}</div>}
       <div>
         <span className="label">NEXT</span>
         <span className="num">{next.number}</span>
