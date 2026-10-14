@@ -105,6 +105,10 @@ Select a group heading to collapse it. The group with the live, next or selected
 | Preview a scene on the grid | Click it |
 | Mute or unmute one channel | Click its tile on the grid |
 
+Switch to **Show** mode before the performance. Show mode hides editing on every screen.
+
+If the desk disconnects, GO is disabled until it comes back. On reconnect cuemute reads the desk again and sends nothing, so check the grid before the next GO.
+
 ## Print a cue sheet
 
 Select **Cue sheet** at the top of the screen. It opens in a new tab with two layouts:
@@ -115,10 +119,6 @@ Select **Cue sheet** at the top of the screen. It opens in a new tab with two la
 Select **Print**. To get a PDF, choose **Save as PDF** in the print dialog. The mic plot prints in landscape.
 
 The sheet follows the show live, so edits appear on it straight away.
-
-Switch to **Show** mode before the performance. Show mode hides editing on every screen.
-
-If the desk disconnects, GO is disabled until it comes back. On reconnect cuemute reads the desk again and sends nothing, so check the grid before the next GO.
 
 ## Develop
 
