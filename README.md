@@ -118,7 +118,9 @@ Select **Cue sheet** at the top of the screen. It opens in a new tab with two la
 
 To choose what prints, use the checkboxes under the layout buttons: **Columns** for the cue list, and **Channels** for the mic plot, for example to leave out the band. Hiding a channel only removes its column; tracked state still counts every scene. New channels are included until you untick them. Your choices are kept in the page address, so bookmark it to reuse them.
 
-Select **Print**. To get a PDF, choose **Save as PDF** in the print dialog. The mic plot prints in landscape.
+Choose the paper size (**A4** or **US Letter**) and **Portrait** or **Landscape** next to the layout buttons. The sheet starts on A4, with the cue list in portrait and the mic plot in landscape. The print dialog follows these choices, so set them here rather than in the dialog.
+
+Select **Print**. To get a PDF, choose **Save as PDF** in the print dialog.
 
 The sheet follows the show live, so edits appear on it straight away.
 

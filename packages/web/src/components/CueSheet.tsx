@@ -12,6 +12,8 @@ import {
 } from "@cuemute/core";
 
 type Layout = "list" | "plot";
+type Paper = "A4" | "letter";
+type Orientation = "portrait" | "landscape";
 
 // cue list columns, in print order
 const COLUMNS = [
@@ -28,6 +30,9 @@ interface Options {
   tracked: boolean;
   columns: ColumnId[]; // shown in the cue list
   hidden: number[]; // channels left off the mic plot; new channels show by default
+  paper: Paper;
+  // null follows the layout: portrait for the cue list, landscape for the mic plot
+  orientation: Orientation | null;
 }
 
 // Choices live in the URL, so a printed sheet can be reopened the same way.
@@ -41,6 +46,8 @@ function readOptions(): Options {
     tracked: q.has("tracked"),
     columns: cols?.length ? cols : ids,
     hidden: (q.get("hide") ?? "").split(",").filter(Boolean).map(Number),
+    paper: q.get("paper") === "letter" ? "letter" : "A4",
+    orientation: (["portrait", "landscape"] as const).find((o) => o === q.get("orient")) ?? null,
   };
 }
 
@@ -49,6 +56,8 @@ function writeOptions(o: Options): void {
   if (o.tracked) parts.push("tracked");
   if (o.columns.length < COLUMNS.length) parts.push(`cols=${o.columns.join(",")}`);
   if (o.hidden.length) parts.push(`hide=${o.hidden.join(",")}`);
+  if (o.paper !== "A4") parts.push(`paper=${o.paper}`);
+  if (o.orientation) parts.push(`orient=${o.orientation}`);
   history.replaceState(null, "", `?${parts.join("&")}`);
 }
 
@@ -59,7 +68,8 @@ const sceneLabel = (number: string, i: number) => number || `${i + 1}`;
 // Use the browser's print dialog to print it or save it as a PDF.
 export function CueSheet({ snapshot }: { snapshot: Snapshot }) {
   const [options, setOptions] = useState(readOptions);
-  const { layout, tracked, columns, hidden } = options;
+  const { layout, tracked, columns, hidden, paper } = options;
+  const orientation = options.orientation ?? (layout === "plot" ? "landscape" : "portrait");
   const { show } = snapshot;
   const allChannels = sheetChannels(show);
   const runs = groupRuns(show.scenes);
@@ -79,15 +89,15 @@ export function CueSheet({ snapshot }: { snapshot: Snapshot }) {
 
   return (
     <div className="cue-sheet">
-      {/* landscape suits the wide mic plot; the browser applies this when printing */}
-      {layout === "plot" && <style>{"@page { size: landscape; }"}</style>}
+      {/* the browser uses this for the print dialog's paper and orientation */}
+      <style>{`@page { size: ${paper} ${orientation}; margin: 12mm; }`}</style>
 
       <div className="sheet-controls">
         <div className="mode">
-          <button className={layout === "list" ? "on" : ""} onClick={() => update({ layout: "list" })}>
+          <button className={layout === "list" ? "on" : ""} onClick={() => update({ layout: "list", orientation: null })}>
             Cue list
           </button>
-          <button className={layout === "plot" ? "on" : ""} onClick={() => update({ layout: "plot" })}>
+          <button className={layout === "plot" ? "on" : ""} onClick={() => update({ layout: "plot", orientation: null })}>
             Mic plot
           </button>
         </div>
@@ -97,6 +107,17 @@ export function CueSheet({ snapshot }: { snapshot: Snapshot }) {
             Tracked state
           </label>
         )}
+        <select value={paper} onChange={(e) => update({ paper: e.target.value as Paper })} aria-label="Paper">
+          <option value="A4">A4</option>
+          <option value="letter">US Letter</option>
+        </select>
+        <div className="mode">
+          {(["portrait", "landscape"] as const).map((o) => (
+            <button key={o} className={orientation === o ? "on" : ""} onClick={() => update({ orientation: o })}>
+              {o === "portrait" ? "Portrait" : "Landscape"}
+            </button>
+          ))}
+        </div>
         <button className="primary" onClick={() => window.print()}>
           Print
         </button>
