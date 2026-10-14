@@ -1,3 +1,4 @@
+import { networkInterfaces } from "node:os";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createConsole } from "@cuemute/consoles";
@@ -24,7 +25,22 @@ const app = await buildServer(engine, {
   logger: true,
 });
 
-await app.listen({ host, port });
+try {
+  await app.listen({ host, port });
+} catch (err) {
+  const code = (err as NodeJS.ErrnoException).code;
+  if (code === "EADDRNOTAVAIL") {
+    const own = Object.entries(networkInterfaces()).flatMap(([name, addrs]) =>
+      (addrs ?? []).filter((a) => a.family === "IPv4").map((a) => `  ${a.address} (${name})`),
+    );
+    console.error(`cuemute: this Mac has no address ${host}. Set host to one of:\n${own.join("\n")}`);
+  } else if (code === "EADDRINUSE") {
+    console.error(`cuemute: port ${port} is in use. Is cuemute already running? If not, set a different port.`);
+  } else {
+    console.error(`cuemute: can't listen on ${host}:${port}: ${(err as Error).message}`);
+  }
+  process.exit(1);
+}
 console.log(`cuemute: show file ${showPath}`);
 console.log(`cuemute: open http://${host === "0.0.0.0" ? "localhost" : host}:${port}`);
 engine.connect();
