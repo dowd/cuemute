@@ -230,3 +230,43 @@ table td { padding: 3px 4px; }
 .show-name { font-size: inherit; font-weight: 700; background: none; border: 1px solid transparent; padding: 2px 6px; }
 .show-name:hover { border-color: var(--line); }
 .show-name .pencil { color: var(--muted-text); font-weight: 400; }
+
+.sheet-link { color: var(--muted-text); font-size: 13px; margin-left: 8px; }
+.sheet-link:hover { color: var(--text); }
+
+/* cue sheet: dark like the rest on screen, black on white on paper */
+.cue-sheet { padding: 16px 24px; }
+.sheet-controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+.sheet-controls .check { display: flex; align-items: center; gap: 6px; }
+.sheet-head h1 { margin: 0 0 4px; font-size: 22px; }
+.sheet-head p { margin: 0 0 12px; color: var(--muted-text); font-size: 13px; }
+.sheet { border-collapse: collapse; width: 100%; font-size: 13px; }
+.sheet th, .sheet td { border: 1px solid var(--line); padding: 4px 6px; text-align: left; vertical-align: top; }
+.sheet thead th { background: var(--panel-2); }
+.sheet .group-row th { background: var(--panel); text-transform: uppercase; letter-spacing: 0.04em; font-size: 12px; }
+.sheet .none { color: var(--muted-text); }
+.cue-list .num, .mic-plot .scene-col { border-left: 6px solid transparent; white-space: nowrap; font-weight: 400; }
+.cue-list .num { font-weight: 700; }
+.cue-list .line { font-style: italic; min-width: 10em; }
+.cue-list td:nth-child(2) { min-width: 8em; }
+.cue-list .notes { white-space: pre-wrap; color: var(--muted-text); }
+.mic-plot { width: auto; }
+.mic-plot th.ch { vertical-align: bottom; padding: 6px 2px; }
+.mic-plot th.ch span { writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; }
+.mic-plot td { width: 26px; text-align: center; padding: 3px 0; }
+.mic-plot td.m { background: var(--mute); }
+.mic-plot td.o { background: var(--open); }
+.mic-plot td.changed { font-weight: 800; }
+.mic-plot td.carried { opacity: 0.45; font-weight: 400; }
+.legend { color: var(--muted-text); font-size: 12px; margin-top: 8px; }
+
+@media print {
+  :root { --bg: #fff; --panel: #eee; --panel-2: #ddd; --line: #999; --text: #000; --muted-text: #444; --mute: #f3c4c0; --open: #c8e8cf; color: #000; background: #fff; }
+  body { background: #fff; }
+  .sheet-controls { display: none; }
+  .cue-sheet { padding: 0; }
+  .sheet { font-size: 10pt; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .sheet tr { break-inside: avoid; }
+  .sheet thead { display: table-header-group; }
+}

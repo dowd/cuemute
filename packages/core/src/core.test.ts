@@ -3,6 +3,7 @@ import {
   back,
   createShow,
   deleteScene,
+  describeChanges,
   duplicateNumbers,
   go,
   groupForInsert,
@@ -11,6 +12,7 @@ import {
   inputTarget,
   insertScene,
   jump,
+  micPlot,
   moveScene,
   newScene,
   orderForSending,
@@ -20,6 +22,7 @@ import {
   renameGroup,
   scenePatchSchema,
   setChannels,
+  sheetChannels,
   stateAtScene,
   targetKey,
   type Change,
@@ -189,5 +192,35 @@ describe("groups", () => {
     const file = { ...createShow(), scenes: [old] };
     expect(parseShow(file).scenes[0]!.group).toBe("");
     expect(scenePatchSchema.parse({ name: "New" })).toEqual({ name: "New" });
+  });
+});
+
+describe("cue sheet", () => {
+  const show = {
+    ...createShow(),
+    channels: [
+      { number: 1, name: "Ana" },
+      { number: 2, name: "Ben" },
+    ],
+    scenes: [scene("a", [unmute(1)]), scene("b", [mute(1), unmute(2), unmute(9)]), scene("c", [])],
+  };
+
+  it("covers the show's channels plus any a scene changes", () => {
+    expect(sheetChannels(show).map((c) => c.number)).toEqual([1, 2, 9]);
+  });
+
+  it("tracks state down the show and marks each scene's own changes", () => {
+    const plot = micPlot(show.scenes, sheetChannels(show));
+    const cell = (r: number, c: number) => plot[r]![c]!;
+    expect(cell(0, 0)).toEqual({ muted: false, changed: true });
+    expect(cell(0, 1)).toEqual({ muted: null, changed: false }); // not set yet
+    expect(cell(1, 0)).toEqual({ muted: true, changed: true });
+    expect(cell(2, 0)).toEqual({ muted: true, changed: false }); // carried over
+    expect(cell(2, 2)).toEqual({ muted: false, changed: false });
+  });
+
+  it("describes a scene's changes by channel name, mutes first", () => {
+    expect(describeChanges(show.scenes[1]!, show.channels)).toBe("Mute: Ana (1) · On: Ben (2), Ch 9");
+    expect(describeChanges(show.scenes[2]!, show.channels)).toBe("");
   });
 });

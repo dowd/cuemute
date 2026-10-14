@@ -105,6 +105,17 @@ Select a group heading to collapse it. The group with the live, next or selected
 | Preview a scene on the grid | Click it |
 | Mute or unmute one channel | Click its tile on the grid |
 
+## Print a cue sheet
+
+Select **Cue sheet** at the top of the screen. It opens in a new tab with two layouts:
+
+- **Cue list**: one row per scene, under its group, with the line, what the scene mutes and opens, and notes.
+- **Mic plot**: scenes down the side and channels across the top, with **M** (muted) or **O** (on). By default it shows only what each scene changes. Turn on **Tracked state** to show every channel's state after each scene: the scene's own changes are bold, and states carried from earlier are grey. A channel is blank until the first scene that sets it.
+
+Select **Print**. To get a PDF, choose **Save as PDF** in the print dialog. The mic plot prints in landscape.
+
+The sheet follows the show live, so edits appear on it straight away.
+
 Switch to **Show** mode before the performance. Show mode hides editing on every screen.
 
 If the desk disconnects, GO is disabled until it comes back. On reconnect cuemute reads the desk again and sends nothing, so check the grid before the next GO.

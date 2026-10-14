@@ -39,6 +39,9 @@ export function Header({ snapshot, online, viewOnly, editing, run }: Props) {
           {status}
         </span>
         {connection.info && <span className="info">{connection.info}</span>}
+        <a className="sheet-link" href="?print" target="_blank" rel="noopener" title="Cue list and mic plot to print or save as PDF">
+          Cue sheet
+        </a>
       </div>
 
       {!viewOnly && (
