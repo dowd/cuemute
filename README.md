@@ -87,10 +87,11 @@ cuemute asks the SQ for each input's mute, which takes under a second. If the de
 
 ## Program a show
 
-1. In **Edit** mode, open the **Channels** tab and add the channels the show manages, with your own names. Leave band and effects channels out: cuemute never touches them. With a Qu, **Import names from desk** copies the desk's names into this list.
-2. Add scenes with **Add scene**, or set the mutes on the desk and select **Record**. Record makes a new scene from the channels that changed since the last GO.
-3. For each scene, set each channel to **–** (leave alone), **Mute** or **On**.
-4. To group scenes, for example the sub-scenes of one script scene, give them the same **Group**. Neighbouring scenes in a group show under one heading. A new or recorded scene takes the group of the scene before it. **Rename** on a group heading renames it on every scene that has it.
+1. In **Edit** mode, select the show name at the top left to rename the show.
+2. Open the **Channels** tab and add the channels the show manages, with your own names. Leave band and effects channels out: cuemute never touches them. With a Qu, **Import names from desk** copies the desk's names into this list.
+3. Add scenes with **Add scene**, or set the mutes on the desk and select **Record**. Record makes a new scene from the channels that changed since the last GO.
+4. For each scene, set each channel to **–** (leave alone), **Mute** or **On**.
+5. To group scenes, for example the sub-scenes of one script scene, give them the same **Group**. Neighbouring scenes in a group show under one heading. A new or recorded scene takes the group of the scene before it. **Rename** on a group heading renames it on every scene that has it.
 
 Select a group heading to collapse it. The group with the live, next or selected scene always stays open. Each screen remembers its own collapsed groups.
 

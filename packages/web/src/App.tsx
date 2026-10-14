@@ -50,7 +50,7 @@ export function App() {
 
   return (
     <div className={`app ${editing ? "editing" : "showing"}`}>
-      <Header snapshot={snapshot} online={online} viewOnly={viewOnly} run={run} />
+      <Header snapshot={snapshot} online={online} viewOnly={viewOnly} editing={editing} run={run} />
       {error && <div className="toast">{error}</div>}
       <main>
         <SceneList

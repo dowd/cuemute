@@ -6,10 +6,11 @@ interface Props {
   snapshot: Snapshot;
   online: boolean;
   viewOnly: boolean;
+  editing: boolean;
   run: Run;
 }
 
-export function Header({ snapshot, online, viewOnly, run }: Props) {
+export function Header({ snapshot, online, viewOnly, editing, run }: Props) {
   const { connection, mode, cursor } = snapshot;
   const deskUp = connection.state === "connected";
 
@@ -18,10 +19,22 @@ export function Header({ snapshot, online, viewOnly, run }: Props) {
   else if (connection.state === "connecting") status = "Connecting to desk…";
   else if (deskUp) status = connection.synced ? "Desk connected" : "Reading desk…";
 
+  const rename = () => {
+    const name = window.prompt("Show name", snapshot.show.name);
+    if (name === null || !name.trim() || name.trim() === snapshot.show.name) return;
+    run(() => api("PUT", "/show/name", { name: name.trim() }));
+  };
+
   return (
     <header>
       <div className="title">
-        <strong>{snapshot.show.name}</strong>
+        {editing ? (
+          <button className="show-name" title="Rename the show" onClick={rename}>
+            {snapshot.show.name} <span className="pencil">✎</span>
+          </button>
+        ) : (
+          <strong>{snapshot.show.name}</strong>
+        )}
         <span className={`pill ${online && deskUp ? "ok" : "bad"}`} title={connection.info}>
           {status}
         </span>
