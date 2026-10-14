@@ -36,7 +36,9 @@ If cuemute refuses a command, for example GO while the desk is offline, the reas
 
 ### Presets
 
-- **Show control**: GO showing the next scene's number, Back, the next scene with its line, a mode toggle, and the desk status.
+- **Show control**: GO showing the next scene's number, Back, the next scene with its line, the next cue line on its own, a mode toggle, and the desk status.
+
+The **Next cue line** preset suits the Stream Deck Neo's info strip. In Companion the strip is the wide place in the bottom row, second column. Drag the preset there. The strip can't be pressed, so the preset has no actions. It turns red when GO won't work.
 - **Channels**: one button per show channel. Red when muted. Press to toggle.
 - **Scenes**: one button per scene. Green when it is the last fired.
 

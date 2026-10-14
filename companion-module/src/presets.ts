@@ -31,6 +31,15 @@ export function UpdatePresets(self: ModuleInstance): void {
 		steps: [],
 		feedbacks: [],
 	}
+	// Shaped for a wide, short display such as the Stream Deck Neo's info strip
+	// (248x58, can't be pressed): no top bar, the line only, red if GO won't work.
+	presets.next_line = {
+		type: 'simple',
+		name: 'Next cue line (Stream Deck Neo info strip)',
+		style: { text: v('next_line'), size: 'auto', color: WHITE, bgcolor: BLACK, show_topbar: false },
+		steps: [],
+		feedbacks: [{ feedbackId: 'desk_disconnected', options: {}, style: { bgcolor: RED, color: WHITE } }],
+	}
 	presets.mode = {
 		type: 'simple',
 		name: 'Show / Edit mode toggle',
@@ -84,7 +93,7 @@ export function UpdatePresets(self: ModuleInstance): void {
 		{
 			id: 'show_control',
 			name: 'Show control',
-			definitions: ['go', 'back', 'next', 'mode', 'desk'],
+			definitions: ['go', 'back', 'next', 'next_line', 'mode', 'desk'],
 		},
 		{
 			id: 'channels',
