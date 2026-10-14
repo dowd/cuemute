@@ -2,6 +2,11 @@
 
 Bitfocus Companion drives a Stream Deck by sending HTTP requests to cuemute. Companion never talks to the desk itself, because the Qu accepts only one MIDI connection.
 
+There are two ways to set this up:
+
+- **The cuemute module** (recommended). Buttons update live, lists show scene and channel names, and presets build a page for you. See [companion-module/README.md](../companion-module/README.md).
+- **Generic HTTP Requests**, described on this page. It needs no install, but buttons don't show live state without polling.
+
 ## Before you start
 
 - cuemute must listen on an address Companion can reach. Start it with `HOST` set to the Mac's address on the show network. If Companion runs on the same Mac, the default `127.0.0.1` works.

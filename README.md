@@ -122,4 +122,4 @@ The code is an npm workspace:
 | `packages/server` | Engine, HTTP API, WebSocket and show file. |
 | `packages/web` | React UI. |
 
-The HTTP API is described in [docs/companion.md](docs/companion.md).
+The HTTP API is described in [docs/companion.md](docs/companion.md). The Companion module is in [companion-module](companion-module/README.md), with its own `npm install`; it is not part of the workspace.

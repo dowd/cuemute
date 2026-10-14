@@ -1,0 +1,28 @@
+{
+	"$schema": "../node_modules/@companion-module/base/assets/manifest.schema.json",
+	"type": "connection",
+	"id": "cuemute",
+	"name": "cuemute",
+	"shortname": "cuemute",
+	"description": "Run cuemute's theatre mute scenes: GO, Back, fire scenes, channel mutes, with live desk state",
+	"version": "0.1.0",
+	"license": "MIT",
+	"repository": "",
+	"bugs": "",
+	"maintainers": [
+		{
+			"name": "Dave Dowding",
+			"email": ""
+		}
+	],
+	"runtime": {
+		"type": "node26",
+		"api": "nodejs-ipc",
+		"apiVersion": "0.0.0",
+		"entrypoint": "../dist/main.js"
+	},
+	"legacyIds": [],
+	"manufacturer": "cuemute",
+	"products": ["cuemute"],
+	"keywords": ["theatre", "mute", "cue", "Allen & Heath", "Qu", "SQ"]
+}
