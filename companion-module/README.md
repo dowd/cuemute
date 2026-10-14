@@ -12,10 +12,10 @@ A [Bitfocus Companion](https://bitfocus.io/companion) module that runs cuemute f
    npm run package
    ```
 
-   This makes `cuemute-0.1.0.tgz`.
+   This makes `cuemute-<version>.tgz`.
 
 2. In Companion, open **Modules**.
-3. Select **Import module package** and choose `cuemute-0.1.0.tgz`.
+3. Select **Import module package** and choose `cuemute-<version>.tgz`.
 4. Open **Connections** and add a **cuemute** connection.
 5. Set the address and port of cuemute.
 
