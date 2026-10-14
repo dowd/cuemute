@@ -6,7 +6,7 @@ import type { Run } from "../App.tsx";
 const TYPES: { value: ConsoleSettings["type"]; label: string }[] = [
   { value: "sim", label: "Simulated desk" },
   { value: "qu", label: "Allen & Heath Qu" },
-  { value: "sq", label: "Allen & Heath SQ (not yet supported)" },
+  { value: "sq", label: "Allen & Heath SQ" },
 ];
 
 export function DeskSettings({ snapshot, run }: { snapshot: Snapshot; run: Run }) {

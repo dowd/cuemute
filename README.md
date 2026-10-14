@@ -2,7 +2,7 @@
 
 Channel mutes for theatre, run from a cue list. Each scene mutes or unmutes the channels it lists, and leaves every other channel alone. The app reads live mute state back from the desk.
 
-Supported desks: Allen & Heath Qu, and a simulated desk for programming without hardware. SQ is planned. See [docs/spec.md](docs/spec.md) for the design.
+Supported desks: Allen & Heath Qu and SQ, and a simulated desk for programming without hardware. See [docs/spec.md](docs/spec.md) for the design.
 
 ## Run a show
 
@@ -46,6 +46,18 @@ For a backstage screen that can't press GO or edit, open the address with `?view
 
 cuemute reads every input's mute state from the desk, and picks up the desk's MIDI channel by itself. The Qu accepts only one MIDI connection at a time, so close A&H MIDI Control and any Companion module that talks to the desk directly.
 
+## Connect an SQ
+
+1. On the SQ, open **Utility > General > MIDI** and note the MIDI channel.
+2. Connect the SQ's network port to the same network as the Mac.
+3. In cuemute, switch to **Edit** mode.
+4. Open the **Desk** tab.
+5. Choose **Allen & Heath SQ**.
+6. Enter the desk's IP address and the MIDI channel from step 1.
+7. Select **Connect**.
+
+cuemute asks the SQ for each input's mute, which takes under a second. If the desk doesn't answer, the MIDI channel in cuemute doesn't match the desk. The SQ can't send channel names over MIDI, so type the names in the **Channels** tab.
+
 ## Program a show
 
 1. In **Edit** mode, open the **Channels** tab and add the channels the show manages, with your own names. Leave band and effects channels out: cuemute never touches them. With a Qu, **Import names from desk** copies the desk's names into this list.
@@ -79,7 +91,7 @@ The code is an npm workspace:
 | Package | Contents |
 |---|---|
 | `packages/core` | Show model and scene logic. No I/O. |
-| `packages/consoles` | The `Console` interface, the simulated desk and the Qu driver. |
+| `packages/consoles` | The `Console` interface, the simulated desk, and the Qu and SQ drivers. |
 | `packages/server` | Engine, HTTP API, WebSocket and show file. |
 | `packages/web` | React UI. |
 

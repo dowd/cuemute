@@ -2,7 +2,7 @@
 
 cuemute runs channel mutes for theatre from a cue list. An operator steps through scenes with GO. Each scene mutes or unmutes a set of channels on the mixing desk. The app reads live mute state back from the desk where the protocol allows it.
 
-Status: agreed design, before any code. Allen & Heath Qu is the first target desk, then SQ.
+Status: built. Allen & Heath Qu was the first target desk, then SQ. Neither driver is yet tested on a real desk.
 
 ## Goals
 
@@ -192,6 +192,8 @@ Reference: [SQ MIDI Protocol Issue 4](https://www.allen-heath.com/content/upload
 - The desk's MIDI channel cannot be read, so the operator sets it in the app.
 - There are no channel names over MIDI.
 - The doc's "LR Mute" get example (p18) uses `00 00`, which the reference table lists as Input 1. LR mute is `00 44`.
+- The driver sends gets in batches of 8 every 10 ms. The connect-time read is complete when all 48 inputs answer. If some don't answer within 5 seconds, the app syncs with what it has. If none answer, the MIDI channel is probably wrong, and the app says so and does not sync.
+- The doc says nothing about Active Sensing sent to the SQ, so the driver doesn't send it. TCP keep-alive detects a dead link.
 
 ## Build order
 
@@ -208,4 +210,6 @@ Reference: [SQ MIDI Protocol Issue 4](https://www.allen-heath.com/content/upload
 
 - Whether the Qu sends a fresh state push after Get System State with iPad flag 0 on port 51325. The doc implies it, but this is not yet tested on a desk.
 - Whether the Qu echoes mute changes that the app sends. The driver must handle an echo without reporting drift.
+- Whether the SQ answers gets at the chosen pace, and whether it sends a mute reply with the parameter CCs every time or relies on running status.
+- Whether the SQ sends Active Sensing, and whether TCP keep-alive alone notices a pulled cable fast enough.
 - Whether some screens should be view-only for GO as well as for editing.
