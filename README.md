@@ -22,17 +22,44 @@ You need Node.js 22 or later.
 
 3. Open <http://127.0.0.1:4000>.
 
-By default cuemute listens on this Mac only, and keeps the show in `shows/show.json`. To change this, set these variables before `npm start`:
+By default cuemute listens on this Mac only, on port 4000, and keeps the show in `shows/show.json`.
 
-| Variable | Default | Purpose |
+### Change the settings
+
+To change the settings, make a file called `cuemute.json` in the cuemute folder. `cuemute.example.json` is a starting point:
+
+```json
+{
+  "host": "192.168.1.10",
+  "port": 4000,
+  "show": "~/Shows/woods.json"
+}
+```
+
+| Setting | Default | Purpose |
 |---|---|---|
-| `HOST` | `127.0.0.1` | The network interface to listen on. Use the Mac's address on the desk network, for example `192.168.1.10`, so iPads and Companion can connect. Avoid `0.0.0.0`, which also listens on venue Wi-Fi. |
-| `PORT` | `4000` | The HTTP port. |
-| `CUEMUTE_SHOW` | `shows/show.json` | The show file. Each save keeps the previous version as `<file>.bak`. |
+| `host` | `127.0.0.1` | The network interface to listen on. Use the Mac's address on the desk network so iPads and Companion can connect. Avoid `0.0.0.0`, which also listens on venue Wi-Fi. |
+| `port` | `4000` | The HTTP port. |
+| `show` | `shows/show.json` | The show file. A relative path is relative to the config file. Each save keeps the previous version as `<file>.bak`. |
+
+Every setting is optional. `cuemute.json` is not committed to git, so each machine can have its own.
+
+An environment variable overrides the matching setting in the file for one run:
+
+| Variable | Overrides |
+|---|---|
+| `HOST` | `host` |
+| `PORT` | `port` |
+| `CUEMUTE_SHOW` | `show` |
+| `CUEMUTE_CONFIG` | Reads a config file at another path, in place of `cuemute.json`. |
 
 ```sh
-HOST=192.168.1.10 CUEMUTE_SHOW=~/Shows/woods.json npm start
+CUEMUTE_CONFIG=~/Shows/venue.json npm start
 ```
+
+If the config file has a mistake, cuemute stops and names the setting at fault.
+
+The desk type, IP address and MIDI channel are not in the config file. They are saved in the show file when you select **Connect**, so they travel with the show.
 
 For a backstage screen that can't press GO or edit, open the address with `?view` on the end, for example `http://192.168.1.10:4000/?view`.
 

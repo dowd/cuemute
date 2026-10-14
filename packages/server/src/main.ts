@@ -2,17 +2,20 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createConsole } from "@cuemute/consoles";
 import { Engine } from "./engine.ts";
+import { loadConfig } from "./config.ts";
 import { buildServer } from "./http.ts";
 import { ShowStore } from "./store.ts";
 
-// Configuration comes from the environment:
-//   CUEMUTE_SHOW  show file (default: shows/show.json in the repo)
-//   HOST          network interface to listen on (default: this machine only)
-//   PORT          default 4000
+// Configuration: see loadConfig and the README.
 const repoRoot = resolve(fileURLToPath(import.meta.url), "../../../..");
-const showPath = resolve(process.env.CUEMUTE_SHOW ?? resolve(repoRoot, "shows/show.json"));
-const host = process.env.HOST ?? "127.0.0.1";
-const port = Number(process.env.PORT ?? 4000);
+let config;
+try {
+  config = loadConfig(repoRoot);
+} catch (err) {
+  console.error(`cuemute: ${(err as Error).message}`);
+  process.exit(1);
+}
+const { host, port, showPath } = config;
 
 const store = new ShowStore(showPath);
 const engine = new Engine({ show: store.load(), save: (s) => store.save(s), createConsole });
