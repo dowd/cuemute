@@ -1,0 +1,72 @@
+# Builds the single-file cuemute for each platform, and the Companion module.
+# A pushed tag such as v0.2.0 publishes them as a GitHub release. Run it by
+# hand from the Actions tab to get the files as a workflow artifact only.
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    # macOS, because the Mac binaries need codesign; it cross-builds the rest
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 26
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            companion-module/package-lock.json
+
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+
+      - name: Build cuemute for each platform
+        run: |
+          version="${GITHUB_REF_NAME}"
+          [ "$GITHUB_REF_TYPE" = tag ] || version="$(git rev-parse --short HEAD)"
+          mkdir -p release
+          for target in darwin-arm64 darwin-x64 linux-x64 linux-arm64 win-x64; do
+            npm run package -- --target "$target"
+            if [ "$target" = win-x64 ]; then
+              cp dist/cuemute-win-x64.exe release/cuemute.exe
+              (cd release && zip -q "cuemute-$version-$target.zip" cuemute.exe && rm cuemute.exe)
+            else
+              # this runner is darwin-arm64, whose build has no suffix
+              src="dist/cuemute-$target"
+              [ "$target" = darwin-arm64 ] && src=dist/cuemute
+              cp "$src" release/cuemute
+              # tar keeps the executable bit, which a bare download loses
+              tar -czf "release/cuemute-$version-$target.tar.gz" -C release cuemute
+              rm release/cuemute
+            fi
+          done
+
+      - name: Build the Companion module
+        working-directory: companion-module
+        run: |
+          npm ci
+          npm run package
+          cp cuemute-*.tgz ../release/
+
+      - run: ls -l release
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cuemute
+          path: release/*
+
+      - name: Publish the release
+        if: github.ref_type == 'tag'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" release/* --title "cuemute $GITHUB_REF_NAME" --generate-notes

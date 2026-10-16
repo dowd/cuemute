@@ -106,6 +106,24 @@ The targets are `darwin-arm64` (Apple silicon Mac), `darwin-x64` (Intel Mac), `w
 
 The file is about 150 MB, because it contains Node. It starts from the official Node build from nodejs.org, of the same version as the Node that runs the command. The first build downloads that Node into `dist/node/` and checks it against the nodejs.org checksums. A Homebrew Node can't be used, because it loads shared libraries that other machines don't have.
 
+### Publish a release
+
+The GitHub Actions workflow `.github/workflows/release.yml` builds the single file for every target, and the Companion module. It runs on a macOS runner, because the Mac builds need `codesign`.
+
+To publish a release, push a tag that starts with `v`:
+
+```sh
+git tag v0.2.0
+git push origin v0.2.0
+```
+
+The workflow runs the type check and the tests, builds the files, and attaches them to a new GitHub release:
+
+- `cuemute-<version>-<target>.tar.gz` for macOS and Linux, and `.zip` for Windows. Each holds the `cuemute` file, which keeps its executable bit.
+- `cuemute-<module version>.tgz`, the Companion module, to import in Companion.
+
+To get the files without a release, run the workflow from the **Actions** tab with **Run workflow**. The files are on the run's page, under **Artifacts**.
+
 ## Connect a Qu
 
 1. On the Qu, connect the network port to the same network as the Mac.
