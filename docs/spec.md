@@ -125,6 +125,9 @@ The HTTP API (proposed shape):
 | POST | `/api/jump/:sceneId` | Show, Edit | Jump to a scene and fire it. |
 | POST | `/api/channels/:number/mute` | Show, Edit | Body `{ "muted": true }`. Mute or unmute one channel. |
 | GET | `/api/state` | Show, Edit | Current and next scene, mode, connection state. For Companion variables. |
+| GET | `/api/shows` | Show, Edit | The show library folder and its shows. |
+| POST | `/api/shows/:file/open` | Edit | Open a show. Sends nothing to the desk. |
+| GET | `/api/shows/:file/export` | Show, Edit | Download a show file. |
 
 Browsers use a WebSocket for live state and for editing. The server is the only source of truth, and every browser is a view of it.
 
@@ -164,6 +167,8 @@ The simulated console (`sim`) keeps mute state in memory. It is built first, and
 ### Show file
 
 One JSON file per show, with a `schemaVersion` field. The server saves on every change and keeps a backup copy of the previous version. JSON is simple to diff, copy between machines, and repair by hand.
+
+The show files live in one folder, the show library. One show is open at a time, and the server remembers the last one opened in `.last-show` in that folder. In Edit mode the operator can make, open, duplicate, delete, export and import shows. Opening a show sends nothing to the desk: no scene is live and its first scene is next. The desk connection stays up unless the opened show names a different desk.
 
 ### Testing
 

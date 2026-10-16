@@ -6,13 +6,17 @@ import { z } from "zod";
 export interface Config {
   host: string;
   port: number;
-  showPath: string;
+  // the show library folder
+  showsDir: string;
+  // a show to open at start in place of the last one opened, if set
+  showPath: string | null;
 }
 
 const fileSchema = z.strictObject({
   host: z.string().min(1).optional(),
   port: z.number().int().min(1).max(65535).optional(),
   show: z.string().min(1).optional(),
+  shows: z.string().min(1).optional(),
 });
 
 type Env = Record<string, string | undefined>;
@@ -29,8 +33,9 @@ export function appDataDir(env: Env = process.env, platform: NodeJS.Platform = p
 // Settings come from, highest first: environment variables, the config file,
 // then defaults. The config file is CUEMUTE_CONFIG, or cuemute.json in baseDir
 // (the repo root, or the app data folder for the packaged binary); it is
-// optional unless CUEMUTE_CONFIG names it. A relative show path in the file is
-// relative to the file. The default show is shows/show.json in baseDir.
+// optional unless CUEMUTE_CONFIG names it. Relative paths in the file are
+// relative to the file. The show library is shows/ in baseDir, or the folder
+// of the show setting when only that is set.
 export function loadConfig(baseDir: string, env: Env = process.env): Config {
   const configPath = env.CUEMUTE_CONFIG
     ? resolve(expandHome(env.CUEMUTE_CONFIG))
@@ -51,11 +56,19 @@ export function loadConfig(baseDir: string, env: Env = process.env): Config {
   const port = Number(env.PORT ?? file.port ?? 4000);
   if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error(`PORT must be a port number, not "${env.PORT}"`);
 
+  const fromFile = (p: string) => resolve(dirname(configPath), expandHome(p));
   const showPath = env.CUEMUTE_SHOW
     ? resolve(expandHome(env.CUEMUTE_SHOW))
     : file.show
-      ? resolve(dirname(configPath), expandHome(file.show))
-      : resolve(baseDir, "shows/show.json");
+      ? fromFile(file.show)
+      : null;
+  const showsDir = env.CUEMUTE_SHOWS
+    ? resolve(expandHome(env.CUEMUTE_SHOWS))
+    : file.shows
+      ? fromFile(file.shows)
+      : showPath
+        ? dirname(showPath)
+        : resolve(baseDir, "shows");
 
-  return { host: env.HOST ?? file.host ?? "127.0.0.1", port, showPath };
+  return { host: env.HOST ?? file.host ?? "127.0.0.1", port, showsDir, showPath };
 }

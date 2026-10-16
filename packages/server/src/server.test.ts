@@ -6,6 +6,7 @@ import { createShow, inputTarget, newScene, type Show } from "@cuemute/core";
 import { SimConsole } from "@cuemute/consoles";
 import { Engine } from "./engine.ts";
 import { buildServer } from "./http.ts";
+import { ShowLibrary } from "./library.ts";
 import { ShowStore } from "./store.ts";
 
 const tick = () => new Promise((r) => setTimeout(r, 0));
@@ -198,6 +199,31 @@ describe("web UI held in memory, as the packaged binary serves it", () => {
     expect((await app.inject({ method: "GET", url: "/missing.js" })).statusCode).toBe(404);
     // the API still wins over the catch-all route
     expect((await app.inject({ method: "GET", url: "/api/state" })).statusCode).toBe(200);
+    await app.close();
+  });
+});
+
+describe("show library over HTTP", () => {
+  it("exports a show as a download and imports it back", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "cuemute-http-library-"));
+    const store = new ShowStore(join(dir, "test.json"));
+    store.save(showWith());
+    const engine = new Engine({ show: store.load(), save: (s) => store.save(s), file: "test.json", createConsole: () => new SimConsole(8) });
+    const app = await buildServer(engine, { library: new ShowLibrary(dir) });
+
+    const list = await app.inject({ method: "GET", url: "/api/shows" });
+    expect(list.json().shows.map((s: { file: string }) => s.file)).toEqual(["test.json"]);
+
+    const exported = await app.inject({ method: "GET", url: "/api/shows/test.json/export" });
+    expect(exported.headers["content-disposition"]).toBe('attachment; filename="test.json"');
+    const res = await app.inject({ method: "POST", url: "/api/shows/import", payload: exported.json() });
+    expect(res.json()).toEqual({ file: "test-2.json" });
+    expect(engine.snapshot().file).toBe("test-2.json");
+
+    const bad = await app.inject({ method: "POST", url: "/api/shows/import", payload: { a: 1 } });
+    expect(bad.statusCode).toBe(400);
+    expect(bad.json().error).toMatch(/isn't a cuemute show/);
+    expect((await app.inject({ method: "POST", url: "/api/shows/..%2Fx.json/open" })).statusCode).toBe(400);
     await app.close();
   });
 });

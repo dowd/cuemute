@@ -23,14 +23,15 @@
 body { margin: 0; }
 button, input, select, textarea { font: inherit; color: inherit; }
 
-button {
+button, a.button {
   background: var(--panel-2);
   border: 1px solid var(--line);
   border-radius: 6px;
   padding: 6px 12px;
   cursor: pointer;
 }
-button:hover:not(:disabled) { border-color: var(--accent); }
+button:hover:not(:disabled), a.button:hover { border-color: var(--accent); }
+a.button { display: inline-block; text-decoration: none; color: inherit; font-size: inherit; }
 button:disabled { opacity: 0.4; cursor: default; }
 button.on { background: var(--accent); border-color: var(--accent); color: #0b1620; }
 button.danger:hover:not(:disabled) { border-color: var(--danger); color: var(--danger); }
@@ -291,3 +292,14 @@ table td { padding: 3px 4px; }
   .sheet tr { break-inside: avoid; }
   .sheet thead { display: table-header-group; }
 }
+
+/* show library */
+.show-list { list-style: none; margin: 8px 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.show-list li { border: 1px solid var(--line); border-radius: 6px; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+.show-list li.open { border-color: var(--go-hi); }
+.show-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.show-info .hint { overflow-wrap: anywhere; }
+.show-title { font-weight: 600; display: flex; gap: 8px; align-items: baseline; }
+.show-title .tag { font-size: 11px; font-weight: 700; color: var(--go-hi); }
+.show-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.shows-panel > .hint:last-child { overflow-wrap: anywhere; }

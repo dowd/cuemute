@@ -5,6 +5,7 @@ import type { Run } from "../App.tsx";
 import { SceneEditor } from "./SceneEditor.tsx";
 import { ChannelsEditor } from "./ChannelsEditor.tsx";
 import { DeskSettings } from "./DeskSettings.tsx";
+import { ShowsPanel } from "./ShowsPanel.tsx";
 
 interface Props {
   snapshot: Snapshot;
@@ -13,7 +14,14 @@ interface Props {
   run: Run;
 }
 
-type Tab = "scene" | "channels" | "desk";
+type Tab = "scene" | "channels" | "desk" | "shows";
+
+const TABS: { id: Tab; label: string }[] = [
+  { id: "scene", label: "Scene" },
+  { id: "channels", label: "Channels" },
+  { id: "desk", label: "Desk" },
+  { id: "shows", label: "Shows" },
+];
 
 export function EditPanel({ snapshot, selected, onSelect, run }: Props) {
   const [tab, setTab] = useState<Tab>("scene");
@@ -37,9 +45,9 @@ export function EditPanel({ snapshot, selected, onSelect, run }: Props) {
   return (
     <aside className="edit-panel">
       <div className="tabs">
-        {(["scene", "channels", "desk"] as const).map((t) => (
-          <button key={t} className={tab === t ? "on" : ""} onClick={() => setTab(t)}>
-            {t === "scene" ? "Scene" : t === "channels" ? "Channels" : "Desk"}
+        {TABS.map((t) => (
+          <button key={t.id} className={tab === t.id ? "on" : ""} onClick={() => setTab(t.id)}>
+            {t.label}
           </button>
         ))}
       </div>
@@ -105,8 +113,9 @@ export function EditPanel({ snapshot, selected, onSelect, run }: Props) {
         </>
       )}
 
-      {tab === "channels" && <ChannelsEditor snapshot={snapshot} run={run} />}
-      {tab === "desk" && <DeskSettings snapshot={snapshot} run={run} />}
+      {tab === "channels" && <ChannelsEditor key={snapshot.file} snapshot={snapshot} run={run} />}
+      {tab === "desk" && <DeskSettings key={snapshot.file} snapshot={snapshot} run={run} />}
+      {tab === "shows" && <ShowsPanel snapshot={snapshot} run={run} />}
     </aside>
   );
 }

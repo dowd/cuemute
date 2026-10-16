@@ -6,18 +6,23 @@ import { z, ZodError } from "zod";
 import { channelSchema, consoleSettingsSchema, inputTarget, scenePatchSchema } from "@cuemute/core";
 import { SimConsole } from "@cuemute/consoles";
 import { Engine, EngineError } from "./engine.ts";
+import type { ShowLibrary } from "./library.ts";
 
 export interface HttpOptions {
   // built web UI to serve at /, if present
   webRoot?: string;
   // or the same files held in memory, keyed by path such as "assets/index.js"
   webFiles?: Map<string, Buffer>;
+  // the folder of show files to list, open and import
+  library?: ShowLibrary;
   logger?: boolean;
 }
 
 const idParams = z.object({ id: z.string() });
 const numberParams = z.object({ number: z.coerce.number().int() });
 const muteBody = z.object({ muted: z.boolean() });
+const fileParams = z.object({ file: z.string() });
+const nameBody = z.object({ name: z.string() });
 
 export async function buildServer(engine: Engine, options: HttpOptions = {}): Promise<FastifyInstance> {
   const app = Fastify({ logger: options.logger ? { level: "warn" } : false });
@@ -143,6 +148,36 @@ export async function buildServer(engine: Engine, options: HttpOptions = {}): Pr
     desk.deskChange(inputTarget(numberParams.parse(req.params).number), muteBody.parse(req.body).muted);
     return { ok: true };
   });
+
+  // --- show library: listing and export in any mode, the rest in Edit mode ---
+
+  const library = options.library;
+  if (library) {
+    app.get("/api/shows", async () => ({ dir: library.dir, shows: library.list() }));
+    app.post("/api/shows", async (req) => ({ file: library.create(engine, nameBody.parse(req.body).name) }));
+    app.post("/api/shows/import", { bodyLimit: 20 * 1024 * 1024 }, async (req) => ({
+      file: library.import(engine, req.body),
+    }));
+    app.post("/api/shows/:file/open", async (req) => {
+      library.open(engine, fileParams.parse(req.params).file);
+      return { ok: true };
+    });
+    app.post("/api/shows/:file/duplicate", async (req) => ({
+      file: library.duplicate(engine, fileParams.parse(req.params).file, nameBody.parse(req.body).name),
+    }));
+    app.delete("/api/shows/:file", async (req) => {
+      library.delete(engine, fileParams.parse(req.params).file);
+      return { ok: true };
+    });
+    app.get("/api/shows/:file/export", async (req, reply) => {
+      const { file } = fileParams.parse(req.params);
+      const show = library.read(file);
+      return reply
+        .header("content-disposition", `attachment; filename="${file.replaceAll('"', "")}"`)
+        .type("application/json")
+        .send(`${JSON.stringify(show, null, 2)}\n`);
+    });
+  }
 
   if (options.webRoot && existsSync(options.webRoot)) {
     await app.register(fastifyStatic, { root: options.webRoot });

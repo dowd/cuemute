@@ -17,7 +17,8 @@ describe("loadConfig", () => {
     expect(loadConfig(root, {})).toEqual({
       host: "127.0.0.1",
       port: 4000,
-      showPath: join(root, "shows/show.json"),
+      showsDir: join(root, "shows"),
+      showPath: null,
     });
   });
 
@@ -26,8 +27,17 @@ describe("loadConfig", () => {
     expect(loadConfig(root, {})).toEqual({
       host: "192.168.1.10",
       port: 4100,
+      showsDir: join(root, "shows"),
       showPath: join(root, "shows/woods.json"),
     });
+  });
+
+  it("reads the show library folder, relative to the file", () => {
+    write("cuemute.json", { shows: "../library", show: "elsewhere/woods.json" });
+    const config = loadConfig(root, {});
+    expect(config.showsDir).toBe(join(root, "../library"));
+    expect(config.showPath).toBe(join(root, "elsewhere/woods.json"));
+    expect(loadConfig(root, { CUEMUTE_SHOWS: "~/s" }).showsDir).toBe(join(homedir(), "s"));
   });
 
   it("lets environment variables override the file", () => {
@@ -35,6 +45,7 @@ describe("loadConfig", () => {
     expect(loadConfig(root, { HOST: "10.0.0.2", PORT: "4200", CUEMUTE_SHOW: "~/x.json" })).toEqual({
       host: "10.0.0.2",
       port: 4200,
+      showsDir: homedir(),
       showPath: join(homedir(), "x.json"),
     });
   });

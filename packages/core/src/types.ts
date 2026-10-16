@@ -57,6 +57,8 @@ export type ConnectionState = "disconnected" | "connecting" | "connected";
 // everything a screen needs, pushed by the server on every change
 export interface Snapshot {
   show: Show;
+  // the open show's file in the show library, or null if it is outside it
+  file: string | null;
   cursor: { current: string | null; next: string | null };
   mode: Mode;
   live: MuteState;

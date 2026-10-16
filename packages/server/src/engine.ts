@@ -45,6 +45,8 @@ export class EngineError extends Error {
 export interface EngineOptions {
   show: Show;
   save: (show: Show) => void;
+  // the show's file name in the show library, if it is in one
+  file?: string | null;
   // throws with a message for the operator if the settings can't make a desk
   createConsole: (settings: ConsoleSettings) => Console;
 }
@@ -53,6 +55,7 @@ export interface EngineOptions {
 // and it emits "change" after anything that alters the snapshot.
 export class Engine extends EventEmitter<{ change: [] }> {
   #show: Show;
+  #file: string | null;
   #cursor: Cursor = initialCursor;
   #mode: Mode = "edit";
   #live: MuteState = {};
@@ -60,13 +63,14 @@ export class Engine extends EventEmitter<{ change: [] }> {
   #console: Console | null = null;
   #synced = false;
   #info = "";
-  readonly #save: (show: Show) => void;
+  #save: (show: Show) => void;
   readonly #createConsole: EngineOptions["createConsole"];
 
   constructor(options: EngineOptions) {
     super();
     this.#show = options.show;
     this.#save = options.save;
+    this.#file = options.file ?? null;
     this.#createConsole = options.createConsole;
     this.#cursor = normalizeCursor(this.#show.scenes, initialCursor);
   }
@@ -75,9 +79,14 @@ export class Engine extends EventEmitter<{ change: [] }> {
     return this.#console;
   }
 
+  get mode(): Mode {
+    return this.#mode;
+  }
+
   snapshot(): Snapshot {
     return {
       show: this.#show,
+      file: this.#file,
       cursor: this.#cursor,
       mode: this.#mode,
       live: this.#live,
@@ -249,6 +258,21 @@ export class Engine extends EventEmitter<{ change: [] }> {
   renameShow(name: string): void {
     this.#requireEdit();
     this.#edit({ ...this.#show, name });
+  }
+
+  // Swaps in another show. Nothing is sent to the desk: no scene is live and
+  // the first scene is next. The desk stays connected unless the new show
+  // names a different one.
+  openShow(show: Show, save: (show: Show) => void, file: string | null): void {
+    this.#requireEdit();
+    const sameDesk = JSON.stringify(show.console) === JSON.stringify(this.#show.console);
+    this.#show = show;
+    this.#save = save;
+    this.#file = file;
+    this.#cursor = normalizeCursor(show.scenes, initialCursor);
+    this.#atLastGo = {};
+    if (sameDesk) this.#changed();
+    else this.connect();
   }
 
   setConsoleSettings(settings: ConsoleSettings): void {

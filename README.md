@@ -22,7 +22,7 @@ You need Node.js 22 or later.
 
 3. Open <http://127.0.0.1:4000>.
 
-By default cuemute listens on this Mac only, on port 4000, and keeps the show in `shows/show.json`.
+By default cuemute listens on this Mac only, on port 4000, and keeps shows in the `shows/` folder. It reopens the show you had open last.
 
 ### Change the settings
 
@@ -32,7 +32,7 @@ To change the settings, make a file called `cuemute.json` in the cuemute folder.
 {
   "host": "192.168.1.10",
   "port": 4000,
-  "show": "~/Shows/woods.json"
+  "shows": "~/Dropbox/Shows"
 }
 ```
 
@@ -40,7 +40,8 @@ To change the settings, make a file called `cuemute.json` in the cuemute folder.
 |---|---|---|
 | `host` | `127.0.0.1` | The network interface to listen on. Use the Mac's address on the desk network so iPads and Companion can connect. Avoid `0.0.0.0`, which also listens on venue Wi-Fi. |
 | `port` | `4000` | The HTTP port. |
-| `show` | `shows/show.json` | The show file. A relative path is relative to the config file. Each save keeps the previous version as `<file>.bak`. |
+| `shows` | `shows/` | The show library: the folder that holds the show files. A relative path is relative to the config file. |
+| `show` | None | A show file to open at every start, in place of the last show opened. If you set `show` and not `shows`, the show library is the folder that holds this file. |
 
 Every setting is optional. `cuemute.json` is not committed to git, so each machine can have its own.
 
@@ -50,6 +51,7 @@ An environment variable overrides the matching setting in the file for one run:
 |---|---|
 | `HOST` | `host` |
 | `PORT` | `port` |
+| `CUEMUTE_SHOWS` | `shows` |
 | `CUEMUTE_SHOW` | `show` |
 | `CUEMUTE_CONFIG` | Reads a config file at another path, in place of `cuemute.json`. |
 
@@ -84,7 +86,7 @@ The single file keeps its settings and shows in the app data folder, not beside 
 | Windows | `%APPDATA%\cuemute` |
 | Linux | `~/.config/cuemute` |
 
-Put `cuemute.json` in that folder to change the settings. The settings and environment variables are the same as above. The default show is `shows/show.json` in that folder. When it starts, cuemute prints the folder and the show file it uses.
+Put `cuemute.json` in that folder to change the settings. The settings and environment variables are the same as above. The default show library is `shows/` in that folder. When it starts, cuemute prints the settings folder, the show library and the show file it uses.
 
 If you copy the file to another Mac by AirDrop, a download or a USB stick, macOS blocks the first run. Right-click the file, select **Open**, then confirm. macOS remembers this for that copy.
 
@@ -145,6 +147,22 @@ cuemute reads every input's mute state from the desk, and picks up the desk's MI
 7. Select **Connect**.
 
 cuemute asks the SQ for each input's mute, which takes under a second. If the desk doesn't answer, the MIDI channel in cuemute doesn't match the desk. The SQ can't send channel names over MIDI, so type the names in the **Channels** tab.
+
+## Open, save and move shows
+
+cuemute saves every change to the open show straight away, so there is no Save button. The **Shows** tab in **Edit** mode lists every show in the show library:
+
+| To | Do this |
+|---|---|
+| Start a show | Select **New show** and type a name. The new show uses the same desk settings as the open show. |
+| Switch shows | Select **Open** on a show. |
+| Save a copy under a new name | Select **Duplicate** on a show. The copy opens. |
+| Copy a show to another machine | Select **Export** to download the show file. On the other machine, select **Import…** and pick the file. The imported show opens. |
+| Delete a show | Open another show first, then select **Delete**. cuemute deletes the show file and its backup. |
+
+Opening a show sends nothing to the desk. No scene is live, and the first scene is next, so the desk changes only when you press GO. If the show names a different desk, cuemute connects to that desk. Every screen and Companion switch to the opened show.
+
+Each show is one JSON file, named after the show when you make it. Renaming a show doesn't rename its file. Each save keeps the previous version as `<file>.bak`.
 
 ## Program a show
 

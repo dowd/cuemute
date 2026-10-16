@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { networkInterfaces } from "node:os";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -7,6 +8,7 @@ import { Engine } from "./engine.ts";
 import { appDataDir, loadConfig } from "./config.ts";
 import { buildServer } from "./http.ts";
 import { embeddedWebFiles } from "./embedded.ts";
+import { ShowLibrary } from "./library.ts";
 import { ShowStore } from "./store.ts";
 
 // Run from the repo, the settings, the show and the built UI live in the repo.
@@ -23,11 +25,18 @@ async function main() {
     console.error(`cuemute: ${(err as Error).message}`);
     process.exit(1);
   }
-  const { host, port, showPath } = config;
+  const { host, port, showsDir } = config;
 
+  const library = new ShowLibrary(showsDir);
+  const showPath = library.startPath(config.showPath);
   const store = new ShowStore(showPath);
-  const engine = new Engine({ show: store.load(), save: (s) => store.save(s), createConsole });
+  const show = store.load();
+  // write a new show straight away, so it is in the library's list
+  if (!existsSync(showPath)) store.save(show);
+  library.remember(showPath);
+  const engine = new Engine({ show, save: (s) => store.save(s), file: library.fileOf(showPath), createConsole });
   const app = await buildServer(engine, {
+    library,
     ...(packaged ? { webFiles: embeddedWebFiles() } : { webRoot: resolve(baseDir, "packages/web/dist") }),
     logger: true,
   });
@@ -49,6 +58,7 @@ async function main() {
     process.exit(1);
   }
   if (packaged) console.log(`cuemute: settings in ${baseDir}`);
+  console.log(`cuemute: shows in ${showsDir}`);
   console.log(`cuemute: show file ${showPath}`);
   console.log(`cuemute: open http://${host === "0.0.0.0" ? "localhost" : host}:${port}`);
   engine.connect();
