@@ -95,7 +95,7 @@ The app never sends queued or repeated mutes on its own, because unexpected mute
 
 ### Live grid
 
-The main view shows the show's channels with their live mute state. The next scene's changes appear over the grid as arrows (muted to unmuted, or the reverse). A change that will have no effect, because the channel is already in that state, is dimmed. This usually means someone changed the desk by hand, which the operator wants to see before GO.
+The main view shows the show's channels with their live mute state. A channel the next scene will change splits in two: its state now on the left half, and its state after GO on the right. A change that will have no effect, because the channel is already in that state, keeps one colour and gets a dashed border and "already". This usually means someone changed the desk by hand, which the operator wants to see before GO.
 
 The grid shows each channel's own mute. A channel silenced by a DCA or mute group shows as unmuted. This is a known limit of the first version.
 

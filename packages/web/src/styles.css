@@ -184,16 +184,33 @@ button.back { padding: 10px 18px; }
   min-height: 86px;
   text-align: left;
   border-width: 2px;
+  position: relative;
 }
 .tile.muted { background: var(--mute); border-color: var(--mute); }
 .tile.open { background: var(--open); border-color: var(--open); }
 .tile.unknown { opacity: 0.5; }
-.tile.changes { border-color: var(--warn); }
-.tile.no-effect .arrow { opacity: 0.45; }
+/* now on the left half, after GO on the right */
+.tile.split.from-muted { background: linear-gradient(90deg, var(--mute) 50%, var(--open) 50%); }
+.tile.split.from-open { background: linear-gradient(90deg, var(--open) 50%, var(--mute) 50%); }
+.tile.split { border-color: var(--warn); }
+.tile.split::after {
+  /* a dark seam, so the halves read as two states and not one colour band */
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(50% - 1px);
+  width: 2px;
+  background: rgba(0, 0, 0, 0.45);
+}
+.tile > span { position: relative; z-index: 1; } /* text over the seam */
+.tile.no-effect { border-style: dashed; border-color: var(--warn); }
 .tile .ch-num { font-size: 12px; color: rgba(255, 255, 255, 0.7); }
 .tile .ch-name { font-weight: 600; }
 .tile .ch-state { margin-top: auto; font-size: 13px; font-weight: 700; }
-.tile .arrow { color: var(--warn); }
+.tile .already { font-weight: 400; color: var(--warn); }
+.tile .ch-state.halves { display: grid; grid-template-columns: 1fr 1fr; width: 100%; }
+.tile .ch-state.halves span:last-child { padding-left: 8px; }
 
 /* edit panel */
 .edit-panel { background: var(--panel); border-left: 1px solid var(--line); padding: 12px; }

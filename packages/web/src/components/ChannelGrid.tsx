@@ -9,9 +9,10 @@ interface Props {
   run: Run;
 }
 
-// The show's channels with their live state from the desk. The previewed
-// scene's changes show as arrows; a change that would do nothing is dimmed,
-// which usually means someone changed the desk by hand.
+// The show's channels with their live state from the desk. A channel the
+// previewed scene will change splits in two: the state now on the left, the
+// state after GO on the right. A change that would do nothing shows a dashed
+// border and "already", which usually means someone changed the desk by hand.
 export function ChannelGrid({ snapshot, preview, viewOnly, run }: Props) {
   const { channels } = snapshot.show;
   const items = preview ? previewScene(preview, snapshot.live) : [];
@@ -38,10 +39,15 @@ export function ChannelGrid({ snapshot, preview, viewOnly, run }: Props) {
           const live = snapshot.live[key];
           const item = byKey.get(key);
           const state = live === undefined ? "unknown" : live ? "muted" : "open";
+          const label = (muted: boolean) => (muted ? "MUTED" : "ON");
+          const split = item?.effective && live !== undefined;
+          const classes = ["tile", split ? "split" : state];
+          if (split) classes.push(live ? "from-muted" : "from-open");
+          if (item && !split) classes.push("no-effect");
           return (
             <button
               key={ch.number}
-              className={`tile ${state} ${item ? (item.effective ? "changes" : "no-effect") : ""}`}
+              className={classes.join(" ")}
               disabled={viewOnly || live === undefined}
               title={live === undefined ? "Not reported by the desk" : "Click to toggle on the desk"}
               onClick={() =>
@@ -50,10 +56,18 @@ export function ChannelGrid({ snapshot, preview, viewOnly, run }: Props) {
             >
               <span className="ch-num">{ch.number}</span>
               <span className="ch-name">{ch.name}</span>
-              <span className="ch-state">
-                {state === "unknown" ? "?" : state === "muted" ? "MUTED" : "ON"}
-                {item && <span className="arrow"> → {item.change.muted ? "MUTE" : "ON"}</span>}
-              </span>
+              {split && item ? (
+                <span className="ch-state halves">
+                  <span>{label(live!)}</span>
+                  <span>{label(item.change.muted)}</span>
+                </span>
+              ) : (
+                <span className="ch-state">
+                  {state === "unknown" ? "?" : label(live!)}
+                  {item && live !== undefined && <span className="already"> · already</span>}
+                  {item && live === undefined && <span className="already"> → {label(item.change.muted)}</span>}
+                </span>
+              )}
             </button>
           );
         })}
