@@ -63,6 +63,49 @@ The desk type, IP address and MIDI channel are not in the config file. They are 
 
 For a backstage screen that can't press GO or edit, open the address with `?view` on the end, for example `http://192.168.1.10:4000/?view`.
 
+### Run the single-file build
+
+`dist/cuemute` is one file that holds Node, the server and the web UI. The Mac that runs it needs nothing else installed. To make it, see [Build the single file](#build-the-single-file).
+
+1. Copy `cuemute` to the Mac that runs the show.
+2. Start it from Terminal:
+
+   ```sh
+   ./cuemute
+   ```
+
+3. Open <http://127.0.0.1:4000>.
+
+The single file keeps its settings and shows in the app data folder, not beside the file:
+
+| Platform | Folder |
+|---|---|
+| macOS | `~/Library/Application Support/cuemute` |
+| Windows | `%APPDATA%\cuemute` |
+| Linux | `~/.config/cuemute` |
+
+Put `cuemute.json` in that folder to change the settings. The settings and environment variables are the same as above. The default show is `shows/show.json` in that folder. When it starts, cuemute prints the folder and the show file it uses.
+
+If you copy the file to another Mac by AirDrop, a download or a USB stick, macOS blocks the first run. Right-click the file, select **Open**, then confirm. macOS remembers this for that copy.
+
+## Build the single file
+
+You need the repo set up as in [Run a show](#run-a-show), and an internet connection the first time.
+
+```sh
+npm run package
+```
+
+The command builds `dist/cuemute` for this machine. To build for another machine, name its target:
+
+```sh
+npm run package -- --target darwin-x64
+```
+
+The targets are `darwin-arm64` (Apple silicon Mac), `darwin-x64` (Intel Mac), `win-x64`, `linux-x64` and `linux-arm64`. A build for another target is `dist/cuemute-<target>`, with `.exe` for Windows.
+
+The file is about 150 MB, because it contains Node. It starts from the official Node build from nodejs.org, of the same version as the Node that runs the command. The first build downloads that Node into `dist/node/` and checks it against the nodejs.org checksums. A Homebrew Node can't be used, because it loads shared libraries that other machines don't have.
+
 ## Connect a Qu
 
 1. On the Qu, connect the network port to the same network as the Mac.

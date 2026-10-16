@@ -10,6 +10,8 @@ import { Engine, EngineError } from "./engine.ts";
 export interface HttpOptions {
   // built web UI to serve at /, if present
   webRoot?: string;
+  // or the same files held in memory, keyed by path such as "assets/index.js"
+  webFiles?: Map<string, Buffer>;
   logger?: boolean;
 }
 
@@ -144,7 +146,27 @@ export async function buildServer(engine: Engine, options: HttpOptions = {}): Pr
 
   if (options.webRoot && existsSync(options.webRoot)) {
     await app.register(fastifyStatic, { root: options.webRoot });
+  } else if (options.webFiles) {
+    const files = options.webFiles;
+    app.get("/*", async (req, reply) => {
+      const path = req.url.split("?")[0]!.slice(1) || "index.html";
+      const body = files.get(path);
+      if (!body) return reply.status(404).send({ error: "Not found" });
+      return reply.type(contentType(path)).send(body);
+    });
   }
 
   return app;
 }
+
+const TYPES: Record<string, string> = {
+  html: "text/html; charset=utf-8",
+  js: "text/javascript; charset=utf-8",
+  css: "text/css; charset=utf-8",
+  svg: "image/svg+xml",
+  png: "image/png",
+  ico: "image/x-icon",
+  json: "application/json",
+};
+
+const contentType = (path: string) => TYPES[path.split(".").pop() ?? ""] ?? "application/octet-stream";

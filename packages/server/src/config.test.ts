@@ -2,7 +2,7 @@ import { mkdtempSync, writeFileSync } from "node:fs";
 import { homedir, tmpdir } from "node:os";
 import { join } from "node:path";
 import { beforeEach, describe, expect, it } from "vitest";
-import { loadConfig } from "./config.ts";
+import { appDataDir, loadConfig } from "./config.ts";
 
 describe("loadConfig", () => {
   let root: string;
@@ -52,5 +52,16 @@ describe("loadConfig", () => {
     expect(() => loadConfig(root, {})).toThrow(/hots/);
     write("cuemute.json", { port: "4000" });
     expect(() => loadConfig(root, {})).toThrow(/port/);
+  });
+});
+
+describe("appDataDir", () => {
+  it("follows each platform's convention", () => {
+    expect(appDataDir({}, "darwin")).toBe(join(homedir(), "Library", "Application Support", "cuemute"));
+    expect(appDataDir({ APPDATA: "C:\\Users\\a\\AppData\\Roaming" }, "win32")).toBe(
+      join("C:\\Users\\a\\AppData\\Roaming", "cuemute"),
+    );
+    expect(appDataDir({}, "linux")).toBe(join(homedir(), ".config", "cuemute"));
+    expect(appDataDir({ XDG_CONFIG_HOME: "/x" }, "linux")).toBe(join("/x", "cuemute"));
   });
 });

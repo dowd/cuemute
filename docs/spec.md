@@ -171,7 +171,7 @@ Vitest. Protocol tests feed the byte examples printed in the Allen & Heath proto
 
 ### Running
 
-`npm start` starts the server and serves the UI. The server binds to one chosen network interface so it does not listen on venue Wi-Fi. There is no login. An optional view-only link serves backstage screens. A packaged app is possible later.
+`npm start` starts the server and serves the UI. The server binds to one chosen network interface so it does not listen on venue Wi-Fi. There is no login. An optional view-only link serves backstage screens. `npm run package` builds a single executable file that holds Node, the server and the UI, and keeps settings and shows in the app data folder. A Mac app with an icon is possible later.
 
 ## Desk protocols
 

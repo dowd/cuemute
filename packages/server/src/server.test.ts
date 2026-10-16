@@ -180,3 +180,24 @@ describe("ShowStore", () => {
     expect(existsSync(`${store.path}.tmp`)).toBe(false);
   });
 });
+
+describe("web UI held in memory, as the packaged binary serves it", () => {
+  it("serves index.html at / and other files by path", async () => {
+    const engine = new Engine({ show: showWith(), save: () => {}, createConsole: () => new SimConsole(8) });
+    const webFiles = new Map([
+      ["index.html", Buffer.from("<html></html>")],
+      ["assets/app.js", Buffer.from("1")],
+    ]);
+    const app = await buildServer(engine, { webFiles });
+    let res = await app.inject({ method: "GET", url: "/?print&layout=plot" });
+    expect(res.statusCode).toBe(200);
+    expect(res.headers["content-type"]).toMatch(/text\/html/);
+    expect(res.body).toBe("<html></html>");
+    res = await app.inject({ method: "GET", url: "/assets/app.js" });
+    expect(res.headers["content-type"]).toMatch(/text\/javascript/);
+    expect((await app.inject({ method: "GET", url: "/missing.js" })).statusCode).toBe(404);
+    // the API still wins over the catch-all route
+    expect((await app.inject({ method: "GET", url: "/api/state" })).statusCode).toBe(200);
+    await app.close();
+  });
+});

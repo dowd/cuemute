@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { homedir } from "node:os";
-import { dirname, resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { z } from "zod";
 
 export interface Config {
@@ -19,14 +19,22 @@ type Env = Record<string, string | undefined>;
 
 const expandHome = (p: string) => (p === "~" || p.startsWith("~/") ? homedir() + p.slice(1) : p);
 
+// Where the packaged binary keeps cuemute.json and shows/, per platform.
+export function appDataDir(env: Env = process.env, platform: NodeJS.Platform = process.platform): string {
+  if (platform === "darwin") return join(homedir(), "Library", "Application Support", "cuemute");
+  if (platform === "win32") return join(env.APPDATA ?? join(homedir(), "AppData", "Roaming"), "cuemute");
+  return join(env.XDG_CONFIG_HOME ?? join(homedir(), ".config"), "cuemute");
+}
+
 // Settings come from, highest first: environment variables, the config file,
-// then defaults. The config file is CUEMUTE_CONFIG, or cuemute.json in the repo
-// root; it is optional unless CUEMUTE_CONFIG names it. A relative show path in
-// the file is relative to the file.
-export function loadConfig(repoRoot: string, env: Env = process.env): Config {
+// then defaults. The config file is CUEMUTE_CONFIG, or cuemute.json in baseDir
+// (the repo root, or the app data folder for the packaged binary); it is
+// optional unless CUEMUTE_CONFIG names it. A relative show path in the file is
+// relative to the file. The default show is shows/show.json in baseDir.
+export function loadConfig(baseDir: string, env: Env = process.env): Config {
   const configPath = env.CUEMUTE_CONFIG
     ? resolve(expandHome(env.CUEMUTE_CONFIG))
-    : resolve(repoRoot, "cuemute.json");
+    : resolve(baseDir, "cuemute.json");
 
   let file: z.infer<typeof fileSchema> = {};
   if (existsSync(configPath)) {
@@ -47,7 +55,7 @@ export function loadConfig(repoRoot: string, env: Env = process.env): Config {
     ? resolve(expandHome(env.CUEMUTE_SHOW))
     : file.show
       ? resolve(dirname(configPath), expandHome(file.show))
-      : resolve(repoRoot, "shows/show.json");
+      : resolve(baseDir, "shows/show.json");
 
   return { host: env.HOST ?? file.host ?? "127.0.0.1", port, showPath };
 }
