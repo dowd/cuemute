@@ -26,6 +26,8 @@ For each button, add a **POST** action on the HTTP connection with these setting
 |---|---|---|
 | GO | `/go` | none |
 | Back | `/back` | none |
+| Forward | `/forward` | none |
+| Set the next scene | `/next/<scene id>` | none |
 | Fire a scene | `/jump/<scene id>` | none |
 | Mute channel 5 | `/channels/5/mute` | `{"muted": true}` |
 | Unmute channel 5 | `/channels/5/mute` | `{"muted": false}` |
@@ -35,7 +37,7 @@ For a request with a body, set the content type to `application/json`.
 
 Scene ids are stable and do not change when you renumber or move a scene. To find a scene's id, open `http://192.168.1.10:4000/api/state` and look in `snapshot.show.scenes`.
 
-GO, Back, Jump, single-channel mute and mode changes all work in Show mode. Requests that change the show are refused in Show mode.
+GO, Back, Forward, setting the next scene, Jump, single-channel mute and mode changes all work in Show mode. Requests that change the show are refused in Show mode.
 
 ## Show the next scene on a button
 

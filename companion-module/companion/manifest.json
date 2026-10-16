@@ -5,7 +5,7 @@
 	"name": "cuemute",
 	"shortname": "cuemute",
 	"description": "Run cuemute's theatre mute scenes: GO, Back, fire scenes, channel mutes, with live desk state",
-	"version": "0.2.0",
+	"version": "0.3.0",
 	"license": "MIT",
 	"repository": "",
 	"bugs": "",

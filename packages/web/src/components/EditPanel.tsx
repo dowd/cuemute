@@ -70,6 +70,13 @@ export function EditPanel({ snapshot, selected, onSelect, run }: Props) {
                   ↓
                 </button>
                 <button
+                  disabled={snapshot.cursor.next === selected.id}
+                  onClick={() => run(() => api("POST", `/next/${selected.id}`))}
+                  title="Make this the scene GO fires next. Sends nothing."
+                >
+                  Set as next
+                </button>
+                <button
                   className="danger"
                   onClick={() => {
                     if (!confirm(`Delete scene ${selected.number} ${selected.name}?`)) return;

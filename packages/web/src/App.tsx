@@ -26,15 +26,17 @@ export function App() {
     });
   }, []);
 
-  // Space is GO anywhere except while typing
+  // Space is GO, and the arrow keys are Back and Forward, anywhere except while typing
   useEffect(() => {
     if (viewOnly) return;
+    const keys: Record<string, string> = { Space: "/go", ArrowLeft: "/back", ArrowRight: "/forward" };
     const onKey = (e: KeyboardEvent) => {
-      if (e.code !== "Space" || e.repeat) return;
+      const path = keys[e.code];
+      if (!path || e.repeat || e.metaKey || e.ctrlKey || e.altKey) return;
       const t = e.target as HTMLElement;
       if (t.closest("input, textarea, select, [contenteditable]")) return;
       e.preventDefault(); // also stops a focused button activating
-      run(() => api("POST", "/go"));
+      run(() => api("POST", path));
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);

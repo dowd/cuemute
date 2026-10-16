@@ -4,6 +4,8 @@ import { channelChoices, isMuted, sceneChoices } from './state.js'
 export type ActionsSchema = {
 	go: { options: Record<string, never> }
 	back: { options: Record<string, never> }
+	forward: { options: Record<string, never> }
+	set_next: { options: { scene: string } }
 	fire_scene: { options: { scene: string } }
 	channel_mute: { options: { channel: number; state: 'mute' | 'unmute' | 'toggle' } }
 	mode: { options: { mode: 'show' | 'edit' | 'toggle' } }
@@ -25,6 +27,26 @@ export function UpdateActions(self: ModuleInstance): void {
 			description: 'Move the next scene back one. Sends nothing to the desk.',
 			options: [],
 			callback: async () => self.command('/back'),
+		},
+		forward: {
+			name: 'Forward',
+			description: 'Move the next scene on one, skipping a scene without firing it. Sends nothing to the desk.',
+			options: [],
+			callback: async () => self.command('/forward'),
+		},
+		set_next: {
+			name: 'Set next scene',
+			description: 'Make a scene the one GO fires next. Sends nothing to the desk.',
+			options: [
+				{
+					id: 'scene',
+					type: 'dropdown',
+					label: 'Scene',
+					choices: scenes,
+					default: scenes[0]?.id ?? '',
+				},
+			],
+			callback: async (e) => self.command(`/next/${encodeURIComponent(e.options.scene)}`),
 		},
 		fire_scene: {
 			name: 'Fire scene',

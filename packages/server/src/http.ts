@@ -75,6 +75,14 @@ export async function buildServer(engine: Engine, options: HttpOptions = {}): Pr
     engine.back();
     return { ok: true };
   });
+  app.post("/api/forward", async () => {
+    engine.forward();
+    return { ok: true };
+  });
+  app.post("/api/next/:id", async (req) => {
+    engine.setNext(idParams.parse(req.params).id);
+    return { ok: true };
+  });
   app.post("/api/jump/:id", async (req) => ({ fired: engine.jump(idParams.parse(req.params).id).id }));
   app.post("/api/channels/:number/mute", async (req) => {
     engine.setMute(numberParams.parse(req.params).number, muteBody.parse(req.body).muted);

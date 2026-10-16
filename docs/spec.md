@@ -68,8 +68,9 @@ Targets use `{ kind, number }` so DCA mutes and mute groups can be added later a
 | Action | Behaviour |
 |---|---|
 | GO, or space bar | Fires the next scene and moves the cursor on. |
-| Back | Moves the cursor back one scene. Sends nothing. |
-| Click a scene | Selects it: in Edit mode the editor opens it. Sends nothing. The grid keeps previewing the next scene. |
+| Back, or ← | Moves the cursor back one scene. Sends nothing. |
+| Forward, or → | Moves the cursor on one scene, skipping it. Stops at the last scene. Sends nothing. |
+| Click a scene | In Show mode, makes it the next scene. In Edit mode, selects it for editing, and **Set as next** makes it next. Sends nothing. The grid previews the next scene. |
 | Double-click a scene | Jumps to it and fires it (see [Jumps](#jumps)). Double, so a stray click mid-show can't change the desk. |
 | Mute or unmute one channel | Sends one change to the desk. Available from the UI and the API. It is not stored in any scene. |
 
@@ -119,6 +120,8 @@ The HTTP API (proposed shape):
 |---|---|---|---|
 | POST | `/api/go` | Show, Edit | Fire the next scene. |
 | POST | `/api/back` | Show, Edit | Move the cursor back. |
+| POST | `/api/forward` | Show, Edit | Move the cursor on, skipping a scene. |
+| POST | `/api/next/:sceneId` | Show, Edit | Make a scene the next one, without firing it. |
 | POST | `/api/jump/:sceneId` | Show, Edit | Jump to a scene and fire it. |
 | POST | `/api/channels/:number/mute` | Show, Edit | Body `{ "muted": true }`. Mute or unmute one channel. |
 | GET | `/api/state` | Show, Edit | Current and next scene, mode, connection state. For Companion variables. |

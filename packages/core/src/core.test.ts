@@ -5,6 +5,7 @@ import {
   deleteScene,
   describeChanges,
   duplicateNumbers,
+  forward,
   go,
   groupForInsert,
   groupRuns,
@@ -22,6 +23,7 @@ import {
   renameGroup,
   scenePatchSchema,
   setChannels,
+  setNext,
   sheetChannels,
   stateAtScene,
   targetKey,
@@ -100,6 +102,22 @@ describe("playback cursor", () => {
     expect(back(scenes, { current: "b", next: "c" })).toEqual({ current: "b", next: "b" });
     expect(back(scenes, { current: "c", next: null })).toEqual({ current: "c", next: "c" });
     expect(back(scenes, { current: null, next: "a" })).toEqual({ current: null, next: "a" });
+  });
+
+  it("Forward skips a scene without firing, and stops at the last", () => {
+    expect(forward(scenes, { current: "a", next: "b" })).toEqual({ current: "a", next: "c" });
+    expect(forward(scenes, { current: "a", next: "c" })).toEqual({ current: "a", next: "c" });
+    expect(forward(scenes, { current: "c", next: null })).toEqual({ current: "c", next: null });
+    expect(forward(scenes, initialCursor)).toEqual({ current: null, next: "b" });
+  });
+
+  it("sets any scene as next, keeping the current one", () => {
+    expect(setNext(scenes, { current: "c", next: null }, "a")).toEqual({ current: "c", next: "a" });
+    expect(setNext(scenes, initialCursor, "gone")).toBeNull();
+    // GO then fires it and carries on after it
+    const step = go(scenes, { current: "c", next: "a" });
+    expect(step.fire?.id).toBe("a");
+    expect(step.cursor).toEqual({ current: "a", next: "b" });
   });
 
   it("jump fires the scene and continues after it", () => {

@@ -100,9 +100,13 @@ Select a group heading to collapse it. The group with the live, next or selected
 | Action | How |
 |---|---|
 | Fire the next scene | **GO**, or Space |
-| Move the next pointer back | **Back**. This sends nothing. |
+| Move the next pointer back | **Back**, or ← |
+| Skip a scene | **Forward**, or →. Stops at the last scene. |
+| Choose the next scene | In Show mode, click it. In Edit mode, select it and choose **Set as next**. |
 | Fire any scene | Double-click it |
 | Select a scene to edit | Click it, in Edit mode |
+
+Back, Forward and choosing the next scene send nothing to the desk. They only change which scene GO fires next. GO then carries on from that scene.
 | Mute or unmute one channel | Click its tile on the grid |
 
 The grid always shows the next scene. A channel it will change shows its state now on the left half and after GO on the right. A dashed border with "already" means the scene sets a state the channel is already in, which usually means someone changed it on the desk by hand.

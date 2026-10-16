@@ -1,5 +1,5 @@
 import type { CompanionPresetDefinitions, CompanionPresetSection } from '@companion-module/base'
-import { BLACK, GREEN, RED, WHITE } from './feedbacks.js'
+import { AMBER, BLACK, GREEN, RED, WHITE } from './feedbacks.js'
 import type ModuleInstance from './main.js'
 import type { ModuleSchema } from './main.js'
 import { channelName, sceneGroups, sceneLabel } from './state.js'
@@ -22,6 +22,13 @@ export function UpdatePresets(self: ModuleInstance): void {
 		name: 'Back',
 		style: { text: 'BACK', size: '18', color: WHITE, bgcolor: DARK },
 		steps: [{ down: [{ actionId: 'back', options: {} }], up: [] }],
+		feedbacks: [],
+	}
+	presets.forward = {
+		type: 'simple',
+		name: 'Forward',
+		style: { text: 'FWD', size: '18', color: WHITE, bgcolor: DARK },
+		steps: [{ down: [{ actionId: 'forward', options: {} }], up: [] }],
 		feedbacks: [],
 	}
 	presets.next = {
@@ -75,6 +82,7 @@ export function UpdatePresets(self: ModuleInstance): void {
 	let position = 0
 	for (const [g, run] of sceneGroups(self.snapshot).entries()) {
 		const ids: string[] = []
+		const nextIds: string[] = []
 		for (const s of run.scenes) {
 			position++
 			const id = `scene_${s.id}`
@@ -93,6 +101,21 @@ export function UpdatePresets(self: ModuleInstance): void {
 					},
 				],
 			}
+			const nextId = `next_${s.id}`
+			nextIds.push(nextId)
+			presets[nextId] = {
+				type: 'simple',
+				name: `Set next: ${label}`,
+				style: { text: `NEXT\n${label}`, size: 'auto', color: WHITE, bgcolor: DARK },
+				steps: [{ down: [{ actionId: 'set_next', options: { scene: s.id } }], up: [] }],
+				feedbacks: [
+					{
+						feedbackId: 'scene_is',
+						options: { scene: s.id, which: 'next' },
+						style: { bgcolor: AMBER, color: BLACK },
+					},
+				],
+			}
 		}
 		sceneSections.push({
 			id: `scenes_${g}`,
@@ -100,13 +123,19 @@ export function UpdatePresets(self: ModuleInstance): void {
 			description: 'Fire a scene directly. Green when it is the last fired.',
 			definitions: ids,
 		})
+		sceneSections.push({
+			id: `next_${g}`,
+			name: run.group ? `Set next: ${run.group}` : 'Set next',
+			description: 'Make a scene the next one without firing it. Amber when it is next.',
+			definitions: nextIds,
+		})
 	}
 
 	const structure: CompanionPresetSection<ModuleSchema>[] = [
 		{
 			id: 'show_control',
 			name: 'Show control',
-			definitions: ['go', 'back', 'next', 'next_line', 'mode', 'desk'],
+			definitions: ['go', 'back', 'forward', 'next', 'next_line', 'mode', 'desk'],
 		},
 		{
 			id: 'channels',

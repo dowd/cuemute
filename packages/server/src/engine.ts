@@ -3,6 +3,7 @@ import {
   back,
   deleteScene,
   duplicateNumbers,
+  forward,
   go,
   initialCursor,
   inputTarget,
@@ -16,6 +17,7 @@ import {
   recordChanges,
   renameGroup,
   setChannels,
+  setNext,
   targetKey,
   updateScene,
   type Channel,
@@ -149,6 +151,19 @@ export class Engine extends EventEmitter<{ change: [] }> {
 
   back(): void {
     this.#cursor = back(this.#show.scenes, this.#cursor);
+    this.#changed();
+  }
+
+  forward(): void {
+    this.#cursor = forward(this.#show.scenes, this.#cursor);
+    this.#changed();
+  }
+
+  // makes a scene the next one without firing it; allowed in Show mode
+  setNext(id: string): void {
+    const cursor = setNext(this.#show.scenes, this.#cursor, id);
+    if (!cursor) throw new EngineError(404, "No such scene");
+    this.#cursor = cursor;
     this.#changed();
   }
 

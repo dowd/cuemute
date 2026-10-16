@@ -57,8 +57,16 @@ export function Header({ snapshot, online, viewOnly, editing, run }: Props) {
               </button>
             ))}
           </div>
-          <button className="back" onClick={() => run(() => api("POST", "/back"))}>
+          <button className="back" onClick={() => run(() => api("POST", "/back"))} title="← key">
             Back
+          </button>
+          <button
+            className="back"
+            disabled={cursor.next === null}
+            onClick={() => run(() => api("POST", "/forward"))}
+            title="→ key: skip a scene without firing it"
+          >
+            Forward
           </button>
           <button
             className="go"

@@ -128,6 +128,18 @@ describe("HTTP API", () => {
     expect(engine.snapshot().live["input:2"]).toBe(false);
   });
 
+  it("moves the next scene without firing, in Show mode too", async () => {
+    engine.setMode("show");
+    expect((await app.inject({ method: "POST", url: "/api/next/s2" })).statusCode).toBe(200);
+    expect(engine.snapshot().cursor).toEqual({ current: null, next: "s2" });
+    await app.inject({ method: "POST", url: "/api/back" });
+    expect(engine.snapshot().cursor.next).toBe("s1");
+    await app.inject({ method: "POST", url: "/api/forward" });
+    expect(engine.snapshot().cursor.next).toBe("s2");
+    expect(engine.snapshot().live["input:1"]).toBe(true); // nothing sent
+    expect((await app.inject({ method: "POST", url: "/api/next/nope" })).statusCode).toBe(404);
+  });
+
   it("reports errors with a status and message", async () => {
     let res = await app.inject({ method: "POST", url: "/api/jump/nope" });
     expect(res.statusCode).toBe(404);

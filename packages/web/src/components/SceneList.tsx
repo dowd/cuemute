@@ -31,7 +31,8 @@ function saveCollapsed(groups: Set<string>): void {
   }
 }
 
-// Click selects a scene (to edit it). Double-click fires it, so a
+// In Show mode a click makes a scene the next one; in Edit mode it selects the
+// scene for editing. Neither sends anything. Double-click fires a scene, so a
 // stray click mid-show never changes the desk. Neighbouring scenes in the same
 // group sit under a heading that collapses; the group holding the live, next or
 // selected scene always stays open.
@@ -67,7 +68,10 @@ export function SceneList({ snapshot, selectedId, onSelect, viewOnly, editing, r
         key={s.id}
         className={classes}
         style={{ borderLeftColor: s.colour || "transparent" }}
-        onClick={() => onSelect(s.id === selectedId ? null : s.id)}
+        onClick={() => {
+          if (editing) onSelect(s.id === selectedId ? null : s.id);
+          else if (!viewOnly) run(() => api("POST", `/next/${s.id}`));
+        }}
         onDoubleClick={() => !viewOnly && run(() => api("POST", `/jump/${s.id}`))}
       >
         <span className={`num ${dupes.has(s.number.trim()) ? "dupe" : ""}`}>{s.number || "–"}</span>

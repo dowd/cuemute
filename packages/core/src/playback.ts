@@ -46,6 +46,22 @@ export function back(scenes: readonly Scene[], cursor: Cursor): Cursor {
   return { current: c.current, next: idAt(scenes, Math.max(0, i - 1)) };
 }
 
+// Moves the next-scene pointer on one place, skipping a scene without firing
+// it. Stops at the last scene. Sends nothing.
+export function forward(scenes: readonly Scene[], cursor: Cursor): Cursor {
+  const c = normalizeCursor(scenes, cursor);
+  if (c.next === null) return c;
+  const i = indexOf(scenes, c.next);
+  return { current: c.current, next: idAt(scenes, Math.min(scenes.length - 1, i + 1)) };
+}
+
+// Makes the scene with this id the next one, without firing anything. Returns
+// null if there is no such scene.
+export function setNext(scenes: readonly Scene[], cursor: Cursor, id: string): Cursor | null {
+  if (indexOf(scenes, id) < 0) return null;
+  return { current: normalizeCursor(scenes, cursor).current, next: id };
+}
+
 // Fires the scene with this id and continues from the one after it.
 export function jump(scenes: readonly Scene[], id: string): Step {
   const i = indexOf(scenes, id);

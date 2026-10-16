@@ -15,6 +15,8 @@ Companion talks only to cuemute, never to the desk.
 |---|---|
 | GO | Fires the next scene. |
 | Back | Moves the next scene back one. Sends nothing to the desk. |
+| Forward | Moves the next scene on one, skipping a scene. Sends nothing to the desk. |
+| Set next scene | Makes a scene the one GO fires next. Sends nothing to the desk. |
 | Fire scene | Jumps to a scene and fires it. |
 | Mute channel | Mutes, unmutes or toggles one channel. Not stored in any scene. |
 | Show or Edit mode | Sets or toggles the mode. |
@@ -36,10 +38,11 @@ If cuemute refuses a command, for example GO while the desk is offline, the reas
 
 ### Presets
 
-- **Show control**: GO showing the next scene's number, Back, the next scene with its line, the next cue line on its own, a mode toggle, and the desk status.
+- **Show control**: GO showing the next scene's number, Back, Forward, the next scene with its line, the next cue line on its own, a mode toggle, and the desk status.
 
 The **Next cue line** preset suits the Stream Deck Neo's info strip. In Companion the strip is the wide place in the bottom row, second column. Drag the preset there. The strip can't be pressed, so the preset has no actions. It turns red when GO won't work.
 - **Channels**: one button per show channel. Red when muted. Press to toggle.
-- **Scenes**: one button per scene, in a section per scene group. Green when it is the last fired.
+- **Scenes**: one button per scene that fires it, in a section per scene group. Green when it is the last fired.
+- **Set next**: one button per scene that makes it next without firing it. Amber when it is next.
 
 The scene and channel lists come from the show. They update when you edit the show in cuemute.
