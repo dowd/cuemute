@@ -69,7 +69,7 @@ Targets use `{ kind, number }` so DCA mutes and mute groups can be added later a
 |---|---|
 | GO, or space bar | Fires the next scene and moves the cursor on. |
 | Back | Moves the cursor back one scene. Sends nothing. |
-| Click a scene | Selects it: the grid previews it, and in Edit mode the editor opens it. Sends nothing. |
+| Click a scene | Selects it: in Edit mode the editor opens it. Sends nothing. The grid keeps previewing the next scene. |
 | Double-click a scene | Jumps to it and fires it (see [Jumps](#jumps)). Double, so a stray click mid-show can't change the desk. |
 | Mute or unmute one channel | Sends one change to the desk. Available from the UI and the API. It is not stored in any scene. |
 

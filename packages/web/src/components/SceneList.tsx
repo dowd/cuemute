@@ -31,7 +31,7 @@ function saveCollapsed(groups: Set<string>): void {
   }
 }
 
-// Click selects a scene (to preview or edit it). Double-click fires it, so a
+// Click selects a scene (to edit it). Double-click fires it, so a
 // stray click mid-show never changes the desk. Neighbouring scenes in the same
 // group sit under a heading that collapses; the group holding the live, next or
 // selected scene always stays open.

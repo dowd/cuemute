@@ -102,10 +102,10 @@ Select a group heading to collapse it. The group with the live, next or selected
 | Fire the next scene | **GO**, or Space |
 | Move the next pointer back | **Back**. This sends nothing. |
 | Fire any scene | Double-click it |
-| Preview a scene on the grid | Click it |
+| Select a scene to edit | Click it, in Edit mode |
 | Mute or unmute one channel | Click its tile on the grid |
 
-On the grid, a channel the previewed scene will change shows its state now on the left half and after GO on the right. A dashed border with "already" means the scene sets a state the channel is already in, which usually means someone changed it on the desk by hand.
+The grid always shows the next scene. A channel it will change shows its state now on the left half and after GO on the right. A dashed border with "already" means the scene sets a state the channel is already in, which usually means someone changed it on the desk by hand.
 
 Switch to **Show** mode before the performance. Show mode hides editing on every screen.
 

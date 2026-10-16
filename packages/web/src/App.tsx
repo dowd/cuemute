@@ -45,8 +45,8 @@ export function App() {
   const editing = snapshot.mode === "edit" && !viewOnly;
   const scenes = snapshot.show.scenes;
   const selected = scenes.find((s) => s.id === selectedId) ?? null;
-  // the grid previews the selected scene, or else the one GO will fire
-  const preview = selected ?? scenes.find((s) => s.id === snapshot.cursor.next) ?? null;
+  // the grid always previews the scene GO will fire; selecting a scene is for editing
+  const preview = scenes.find((s) => s.id === snapshot.cursor.next) ?? null;
 
   return (
     <div className={`app ${editing ? "editing" : "showing"}`}>

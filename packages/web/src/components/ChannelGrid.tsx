@@ -10,7 +10,7 @@ interface Props {
 }
 
 // The show's channels with their live state from the desk. A channel the
-// previewed scene will change splits in two: the state now on the left, the
+// next scene will change splits in two: the state now on the left, the
 // state after GO on the right. A change that would do nothing shows a dashed
 // border and "already", which usually means someone changed the desk by hand.
 export function ChannelGrid({ snapshot, preview, viewOnly, run }: Props) {
@@ -27,10 +27,10 @@ export function ChannelGrid({ snapshot, preview, viewOnly, run }: Props) {
       <div className="grid-caption">
         {preview ? (
           <>
-            Previewing <strong>{[preview.number, preview.name].filter(Boolean).join(" ")}</strong>
+            Now → Next: <strong>{[preview.number, preview.name].filter(Boolean).join(" ")}</strong>
           </>
         ) : (
-          "Live desk"
+          "Live desk · end of cue list"
         )}
       </div>
       <div className="grid">
