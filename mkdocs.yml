@@ -1,0 +1,56 @@
+site_name: cuemute
+site_description: Radio mic mutes for theatre, run from a cue list, for Allen & Heath Qu and SQ desks.
+repo_url: https://github.com/dowd/cuemute
+repo_name: dowd/cuemute
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: green
+      accent: green
+      toggle:
+        icon: material/weather-night
+        name: Dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: green
+      accent: green
+      toggle:
+        icon: material/weather-sunny
+        name: Light mode
+  features:
+    - navigation.sections
+    - navigation.footer
+    - content.code.copy
+    - search.suggest
+
+nav:
+  - Home: index.md
+  - Use cuemute:
+      - Install and start: install.md
+      - Connect a desk: connect.md
+      - Program a show: program.md
+      - Run a show: run.md
+      - Manage shows: shows.md
+      - Print a cue sheet: cue-sheet.md
+      - Stream Deck and Companion: companion.md
+  - Reference:
+      - Settings: settings.md
+      - HTTP API: api.md
+      - Design spec: spec.md
+  - Build and develop: building.md
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.superfences
+  - pymdownx.details
+
+exclude_docs: |
+  requirements.txt

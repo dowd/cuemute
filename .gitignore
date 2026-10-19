@@ -6,3 +6,5 @@ dist/
 shows/
 # local settings, see cuemute.example.json
 cuemute.json
+.venv-docs/
+site/

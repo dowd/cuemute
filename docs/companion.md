@@ -1,70 +1,74 @@
-# Control cuemute from Companion
+# Stream Deck and Companion
 
-Bitfocus Companion drives a Stream Deck by sending HTTP requests to cuemute. Companion never talks to the desk itself, because the Qu accepts only one MIDI connection.
+[Bitfocus Companion](https://bitfocus.io/companion) runs a Stream Deck. The cuemute module for Companion gives you GO, Back and scene buttons that follow the show live: a button shows the next scene's number, and channel buttons turn red when the channel is muted, including mutes changed on the desk.
 
-There are two ways to set this up:
+Companion only talks to cuemute, never to the desk.
 
-- **The cuemute module** (recommended). Buttons update live, lists show scene and channel names, and presets build a page for you. See [companion-module/README.md](../companion-module/README.md).
-- **Generic HTTP Requests**, described on this page. It needs no install, but buttons don't show live state without polling.
+You need Companion 5.0 or later.
 
-## Before you start
+## Install the module
 
-- cuemute must listen on an address Companion can reach. Start it with `HOST` set to the Mac's address on the show network. If Companion runs on the same Mac, the default `127.0.0.1` works.
-- In the examples below, cuemute is at `http://192.168.1.10:4000`. Use your own address.
+1. Download `cuemute-<version>.tgz` from the [cuemute releases page](https://github.com/dowd/cuemute/releases). It is the Companion module, not cuemute itself.
+2. In Companion, open **Modules**.
+3. Select **Import module package**, and choose the file.
+4. Open **Connections** and add a **cuemute** connection.
+5. Set **cuemute address** and **Port**. If Companion runs on the same machine as cuemute, use `127.0.0.1` and `4000`.
 
-## Set up the connection
+If Companion runs on another machine, cuemute must listen on the show network. See [Use cuemute from an iPad or another computer](install.md#use-cuemute-from-an-ipad-or-another-computer).
 
-1. In Companion, open **Connections**.
-2. Add a **Generic: HTTP Requests** connection.
-3. Set the base URL to `http://192.168.1.10:4000/api`.
+To update the module, import the new file in the same way.
 
-## Add buttons
+## Build a page with presets
 
-For each button, add a **POST** action on the HTTP connection with these settings:
+The fastest way to fill a Stream Deck page is to drag presets from the cuemute connection onto buttons:
 
-| Button | URL | Body |
-|---|---|---|
-| GO | `/go` | none |
-| Back | `/back` | none |
-| Forward | `/forward` | none |
-| Set the next scene | `/next/<scene id>` | none |
-| Fire a scene | `/jump/<scene id>` | none |
-| Mute channel 5 | `/channels/5/mute` | `{"muted": true}` |
-| Unmute channel 5 | `/channels/5/mute` | `{"muted": false}` |
-| Show mode | `/mode` | `{"mode": "show"}` |
+| Preset section | Buttons |
+|---|---|
+| **Show control** | GO, which shows the next scene's number. Back, Forward, the next scene with its cue line, the next cue line on its own, a Show/Edit mode toggle, and the desk status. |
+| **Channels** | One button per show channel. Red when muted. Press to mute or unmute. |
+| **Scenes** | One button per scene that fires it, in a section per group. Green when it is the last scene fired. |
+| **Set next** | One button per scene that makes it next without firing it. Amber when it is next. |
 
-For a request with a body, set the content type to `application/json`.
+The scene and channel buttons come from the open show, and update when you edit it.
 
-Scene ids are stable and do not change when you renumber or move a scene. To find a scene's id, open `http://192.168.1.10:4000/api/state` and look in `snapshot.show.scenes`.
+On a Stream Deck Neo, drag the **Next cue line** preset to the info strip. In Companion the strip is the wide space in the bottom row, second column. The strip can't be pressed, so the preset has no actions. It turns red when GO won't work.
 
-GO, Back, Forward, setting the next scene, Jump, single-channel mute and mode changes all work in Show mode. Requests that change the show are refused in Show mode.
+## Actions
 
-## Show the next scene on a button
+| Action | What it does |
+|---|---|
+| GO | Fires the next scene. |
+| Back | Moves NEXT back one scene. Sends nothing to the desk. |
+| Forward | Moves NEXT on one scene, skipping a scene. Sends nothing to the desk. |
+| Set next scene | Makes a scene the one GO fires next. Sends nothing to the desk. |
+| Fire scene | Jumps to a scene and fires it. |
+| Mute channel | Mutes, unmutes or toggles one channel. Not stored in any scene. |
+| Show or Edit mode | Sets or toggles the mode. |
 
-`GET /api/state` returns flat fields that are simple to show on a button:
+If cuemute refuses a command, for example GO while the desk is disconnected, the reason is in the connection's log in Companion.
 
-```json
-{
-  "mode": "show",
-  "connected": true,
-  "current": "2 Bakery",
-  "currentGroup": "Act 1 Sc 2",
-  "next": "2A Witch enters",
-  "nextGroup": "Act 1 Sc 2",
-  "nextLineRef": "p6 knock",
-  "snapshot": { "...": "full state" }
-}
-```
+## Feedbacks
 
-Set the HTTP connection to poll `/state` and map `next` and `nextLineRef` to Companion variables. Then put `$(<connection>:next)` in a button's text. The exact settings for polling depend on your version of the HTTP module.
+| Feedback | On when |
+|---|---|
+| Channel is muted | The channel is muted on the desk. |
+| Desk or cuemute not connected | GO would do nothing. |
+| Show mode | cuemute is in Show mode. |
+| Scene is current or next | The chosen scene is the last fired, or the next. |
 
-## Errors
+## Variables
 
-An error returns a status code and a message:
+Use these in button text, for example `$(cuemute:next_number)`:
 
-| Status | Example message | Cause |
-|---|---|---|
-| 409 | `Desk not connected` | GO or a mute while the desk is offline. |
-| 409 | `Switch to Edit mode to change the show` | An editing request in Show mode. |
-| 404 | `No such scene` | A jump to a scene id that doesn't exist. |
-| 400 | `No such channel` | A channel number the desk doesn't have. |
+| Variable | Contents |
+|---|---|
+| `show` | The show name. |
+| `mode` | `show` or `edit`. |
+| `desk` | The desk status. |
+| `current`, `current_number`, `current_name`, `current_group` | The last scene fired. |
+| `next`, `next_number`, `next_name`, `next_group`, `next_line`, `next_notes` | The next scene. |
+| `ch_N_name`, `ch_N_muted` | Channel N's name, and whether it is muted. |
+
+## Without the module
+
+Companion's **Generic HTTP Requests** module can also send commands to cuemute. Buttons then can't show live state. See [HTTP API](api.md).

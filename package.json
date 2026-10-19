@@ -13,6 +13,9 @@
     "build": "npm run build -w @cuemute/web",
     "start": "npm run build && npm run start -w @cuemute/server",
     "package": "node scripts/build-binary.mjs",
+    "screenshots": "npm run build && node scripts/screenshots.mjs",
+    "docs": ".venv-docs/bin/mkdocs serve",
+    "docs:build": ".venv-docs/bin/mkdocs build --strict",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc -p packages/core && tsc -p packages/consoles && tsc -p packages/server && tsc -p packages/web"
@@ -21,6 +24,7 @@
     "@types/node": "^26.6.5",
     "concurrently": "^10.0.6",
     "esbuild": "^0.28.2",
+    "playwright-core": "^1.64.1",
     "typescript": "^7.0.2",
     "vitest": "^5.0.3"
   },

@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "name": "Twelfth Night",
+  "channels": [
+    {
+      "number": 1,
+      "name": "Viola"
+    },
+    {
+      "number": 2,
+      "name": "Orsino"
+    },
+    {
+      "number": 3,
+      "name": "Olivia"
+    }
+  ],
+  "scenes": [
+    {
+      "id": "twelfth-1",
+      "number": "1",
+      "name": "If music be the food of love",
+      "group": "Act 1",
+      "lineRef": "Top of show",
+      "notes": "",
+      "colour": "",
+      "changes": []
+    }
+  ],
+  "console": {
+    "type": "sim",
+    "host": "",
+    "midiChannel": 1
+  }
+}

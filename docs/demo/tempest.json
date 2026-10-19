@@ -1,0 +1,426 @@
+{
+  "schemaVersion": 1,
+  "name": "The Tempest",
+  "channels": [
+    {
+      "number": 1,
+      "name": "Prospero"
+    },
+    {
+      "number": 2,
+      "name": "Miranda"
+    },
+    {
+      "number": 3,
+      "name": "Ariel"
+    },
+    {
+      "number": 4,
+      "name": "Caliban"
+    },
+    {
+      "number": 5,
+      "name": "Ferdinand"
+    },
+    {
+      "number": 6,
+      "name": "Alonso"
+    },
+    {
+      "number": 7,
+      "name": "Gonzalo"
+    },
+    {
+      "number": 8,
+      "name": "Antonio"
+    },
+    {
+      "number": 9,
+      "name": "Stephano"
+    },
+    {
+      "number": 10,
+      "name": "Trinculo"
+    }
+  ],
+  "scenes": [
+    {
+      "id": "tempest-1",
+      "number": "1",
+      "name": "Ship in the storm",
+      "group": "Act 1 Scene 1",
+      "lineRef": "Top of show, thunder",
+      "notes": "Check every mic is muted before the house opens.",
+      "colour": "#3b82f6",
+      "changes": [
+        {
+          "target": {
+            "kind": "input",
+            "number": 1
+          },
+          "muted": true
+        },
+        {
+          "target": {
+            "kind": "input",
+            "number": 2
+          },
+          "muted": true
+        },
+        {
+          "target": {
+            "kind": "input",
+            "number": 3
+          },
+          "muted": true
+        },
+        {
+          "target": {
+            "kind": "input",
+            "number": 4
+          },
+          "muted": true
+        },
+        {
+          "target": {
+            "kind": "input",
+            "number": 5
+          },
+          "muted": true
+        },
+        {
+          "target": {
+            "kind": "input",
+            "number": 9
+          },
+          "muted": true
+        },
+        {
+          "target": {
+            "kind": "input",
+            "number": 10
+          },
+          "muted": true
+        },
+        {
+          "target": {
+            "kind": "input",
+            "number": 6
+          },
+          "muted": false
+        },
+        {
+          "target": {
+            "kind": "input",
+            "number": 7
+          },
+          "muted": false
+        },
+        {
+          "target": {
+            "kind": "input",
+            "number": 8
+          },
+          "muted": false
+        }
+      ]
+    },
+    {
+      "id": "tempest-2",
+      "number": "2",
+      "name": "The ship splits",
+      "group": "Act 1 Scene 1",
+      "lineRef": "“We split, we split!”",
+      "notes": "",
+      "colour": "",
+      "changes": [
+        {
+          "target": {
+            "kind": "input",
+            "number": 6
+          },
+          "muted": true
+        },
+        {
+          "target": {
+            "kind": "input",
+            "number": 7
+          },
+          "muted": true
+        },
+        {
+          "target": {
+            "kind": "input",
+            "number": 8
+          },
+          "muted": true
+        }
+      ]
+    },
+    {
+      "id": "tempest-3",
+      "number": "3",
+      "name": "Prospero and Miranda",
+      "group": "Act 1 Scene 2",
+      "lineRef": "“If by your art, my dearest father”",
+      "notes": "",
+      "colour": "",
+      "changes": [
+        {
+          "target": {
+            "kind": "input",
+            "number": 1
+          },
+          "muted": false
+        },
+        {
+          "target": {
+            "kind": "input",
+            "number": 2
+          },
+          "muted": false
+        }
+      ]
+    },
+    {
+      "id": "tempest-4",
+      "number": "4",
+      "name": "Ariel enters",
+      "group": "Act 1 Scene 2",
+      "lineRef": "“All hail, great master!”",
+      "notes": "Ariel's pack is on the flying harness. Listen for rub.",
+      "colour": "#a855f7",
+      "changes": [
+        {
+          "target": {
+            "kind": "input",
+            "number": 3
+          },
+          "muted": false
+        }
+      ]
+    },
+    {
+      "id": "tempest-5",
+      "number": "5",
+      "name": "Miranda sleeps",
+      "group": "Act 1 Scene 2",
+      "lineRef": "“Thou art inclined to sleep”",
+      "notes": "",
+      "colour": "",
+      "changes": [
+        {
+          "target": {
+            "kind": "input",
+            "number": 2
+          },
+          "muted": true
+        }
+      ]
+    },
+    {
+      "id": "tempest-6",
+      "number": "6",
+      "name": "Caliban",
+      "group": "Act 1 Scene 2",
+      "lineRef": "“As wicked dew as e'er my mother brushed”",
+      "notes": "",
+      "colour": "",
+      "changes": [
+        {
+          "target": {
+            "kind": "input",
+            "number": 4
+          },
+          "muted": false
+        },
+        {
+          "target": {
+            "kind": "input",
+            "number": 2
+          },
+          "muted": false
+        }
+      ]
+    },
+    {
+      "id": "tempest-7",
+      "number": "7",
+      "name": "Ferdinand led on",
+      "group": "Act 1 Scene 2",
+      "lineRef": "“Come unto these yellow sands”",
+      "notes": "",
+      "colour": "",
+      "changes": [
+        {
+          "target": {
+            "kind": "input",
+            "number": 4
+          },
+          "muted": true
+        },
+        {
+          "target": {
+            "kind": "input",
+            "number": 5
+          },
+          "muted": false
+        }
+      ]
+    },
+    {
+      "id": "tempest-8",
+      "number": "8",
+      "name": "Another part of the island",
+      "group": "Act 2 Scene 1",
+      "lineRef": "“Beseech you, sir, be merry”",
+      "notes": "",
+      "colour": "#22c55e",
+      "changes": [
+        {
+          "target": {
+            "kind": "input",
+            "number": 1
+          },
+          "muted": true
+        },
+        {
+          "target": {
+            "kind": "input",
+            "number": 2
+          },
+          "muted": true
+        },
+        {
+          "target": {
+            "kind": "input",
+            "number": 5
+          },
+          "muted": true
+        },
+        {
+          "target": {
+            "kind": "input",
+            "number": 3
+          },
+          "muted": true
+        },
+        {
+          "target": {
+            "kind": "input",
+            "number": 6
+          },
+          "muted": false
+        },
+        {
+          "target": {
+            "kind": "input",
+            "number": 7
+          },
+          "muted": false
+        },
+        {
+          "target": {
+            "kind": "input",
+            "number": 8
+          },
+          "muted": false
+        }
+      ]
+    },
+    {
+      "id": "tempest-9",
+      "number": "9",
+      "name": "Ariel's charm",
+      "group": "Act 2 Scene 1",
+      "lineRef": "“My master through his art foresees the danger”",
+      "notes": "",
+      "colour": "",
+      "changes": [
+        {
+          "target": {
+            "kind": "input",
+            "number": 3
+          },
+          "muted": false
+        }
+      ]
+    },
+    {
+      "id": "tempest-10",
+      "number": "10",
+      "name": "Caliban and Trinculo",
+      "group": "Act 2 Scene 2",
+      "lineRef": "“All the infections that the sun sucks up”",
+      "notes": "",
+      "colour": "#f59e0b",
+      "changes": [
+        {
+          "target": {
+            "kind": "input",
+            "number": 6
+          },
+          "muted": true
+        },
+        {
+          "target": {
+            "kind": "input",
+            "number": 7
+          },
+          "muted": true
+        },
+        {
+          "target": {
+            "kind": "input",
+            "number": 8
+          },
+          "muted": true
+        },
+        {
+          "target": {
+            "kind": "input",
+            "number": 3
+          },
+          "muted": true
+        },
+        {
+          "target": {
+            "kind": "input",
+            "number": 4
+          },
+          "muted": false
+        },
+        {
+          "target": {
+            "kind": "input",
+            "number": 10
+          },
+          "muted": false
+        }
+      ]
+    },
+    {
+      "id": "tempest-11",
+      "number": "11",
+      "name": "Stephano",
+      "group": "Act 2 Scene 2",
+      "lineRef": "“I shall no more to sea”",
+      "notes": "",
+      "colour": "",
+      "changes": [
+        {
+          "target": {
+            "kind": "input",
+            "number": 9
+          },
+          "muted": false
+        }
+      ]
+    }
+  ],
+  "console": {
+    "type": "sim",
+    "host": "",
+    "midiChannel": 1
+  }
+}
