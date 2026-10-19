@@ -1,4 +1,5 @@
 site_name: cuemute
+site_url: https://dowd.github.io/cuemute/
 site_description: Radio mic mutes for theatre, run from a cue list, for Allen & Heath Qu and SQ desks.
 repo_url: https://github.com/dowd/cuemute
 repo_name: dowd/cuemute

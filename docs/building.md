@@ -89,3 +89,5 @@ The docs are an [MkDocs](https://www.mkdocs.org) site with the Material theme, i
 3. Open <http://127.0.0.1:8000>.
 
 The screenshots come from the demo shows in `docs/demo`. To take them again after a change to the UI, run `npm run screenshots`. It uses the Google Chrome installed on your machine.
+
+A push to `main` that changes the docs publishes the site to <https://dowd.github.io/cuemute/>, through the workflow `.github/workflows/docs.yml`. The workflow builds with `--strict`, so a broken link or a missing page stops the publish.

@@ -23,7 +23,7 @@ The first start on a Mac needs **Open Anyway** in **System Settings > Privacy & 
 
 ## Documentation
 
-The full guide is in the [docs](docs/index.md) folder:
+The full guide is at **<https://dowd.github.io/cuemute/>**. The same pages are in the [docs](docs/index.md) folder:
 
 | To | Read |
 |---|---|
@@ -37,7 +37,7 @@ The full guide is in the [docs](docs/index.md) folder:
 | Change where cuemute listens or keeps shows | [Settings](docs/settings.md) |
 | Work on cuemute | [Build and develop](docs/building.md) |
 
-To read the docs as a website on your machine, see [Work on these docs](docs/building.md#work-on-these-docs).
+To work on the docs, see [Work on these docs](docs/building.md#work-on-these-docs).
 
 ## Run from source
 
