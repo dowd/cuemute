@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { ProductionView } from "@cuemute/script";
+import { linkOff, type LinkState, type ProductionView } from "@cuemute/script";
 
 const RETRY_MS = 1000;
 
@@ -20,10 +20,10 @@ async function serverUp(): Promise<void> {
 
 export type ProductionState =
   | { status: "loading" }
-  | { status: "ready"; production: ProductionView; online: boolean }
+  | { status: "ready"; production: ProductionView; link: LinkState; online: boolean }
   | { status: "gone"; message: string };
 
-// A production's latest state, pushed by the server on every change. Reconnects
+// A production's latest state and its cuemute link, pushed by the server on every change. Reconnects
 // on its own; while the socket is down the state is the last one received.
 export function useProduction(id: string): ProductionState {
   const [state, setState] = useState<ProductionState>({ status: "loading" });
@@ -37,9 +37,19 @@ export function useProduction(id: string): ProductionState {
       const proto = location.protocol === "https:" ? "wss" : "ws";
       socket = new WebSocket(`${proto}://${location.host}/ws/productions/${encodeURIComponent(id)}`);
       socket.onmessage = (e) => {
-        const msg = JSON.parse(e.data as string) as { production?: ProductionView; deleted?: true; error?: string };
-        if (msg.production) setState({ status: "ready", production: msg.production, online: true });
-        else {
+        const msg = JSON.parse(e.data as string) as {
+          production?: ProductionView;
+          link?: LinkState;
+          deleted?: true;
+          error?: string;
+        };
+        if (msg.production) {
+          const production = msg.production;
+          setState((s) => ({ status: "ready", production, link: s.status === "ready" ? s.link : linkOff, online: true }));
+        } else if (msg.link) {
+          const link = msg.link;
+          setState((s) => (s.status === "ready" ? { ...s, link } : s));
+        } else {
           closed = true; // a deleted or missing production won't come back
           setState({ status: "gone", message: msg.error ?? "This production was deleted" });
         }

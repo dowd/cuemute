@@ -61,6 +61,10 @@ button.danger:hover:not(:disabled) { border-color: var(--danger); color: var(--d
 }
 .pill { padding: 3px 10px; border-radius: 999px; font-size: 13px; }
 .pill.bad { background: var(--danger); }
+.pill.ok { background: #2a6e3b; }
+button.on { background: var(--accent); border-color: var(--accent); color: #0b1620; }
+input { background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; width: 100%; }
+input:focus { outline: none; border-color: var(--accent); }
 
 header {
   display: flex;
@@ -104,6 +108,7 @@ header strong { font-size: 18px; }
 .production { display: flex; flex-direction: column; height: 100vh; }
 .empty-script { max-width: 560px; margin: 40px auto; padding: 0 16px; }
 .reader { flex: 1; display: grid; grid-template-columns: 240px 1fr; min-height: 0; }
+.reader.with-panel { grid-template-columns: 220px 1fr 340px; }
 .reader > * { overflow-y: auto; min-height: 0; }
 .outline { background: var(--panel); border-right: 1px solid var(--line); padding: 8px 0; display: flex; flex-direction: column; }
 .outline button { background: none; border: 0; border-radius: 0; text-align: left; padding: 4px 12px; font-size: 13px; color: var(--muted-text); }
@@ -111,30 +116,99 @@ header strong { font-size: 18px; }
 .outline button.h1 { font-weight: 700; color: var(--text); margin-top: 6px; }
 .outline button.h2 { padding-left: 24px; }
 
-.script { position: relative; padding: 16px 24px 50vh; line-height: 1.55; font-size: 16px; }
-.para { max-width: 72ch; margin: 0 0 6px; }
+.script { position: relative; padding: 16px 24px 50vh 8px; line-height: 1.55; font-size: 16px; }
+.now-next {
+  position: sticky;
+  top: -16px;
+  z-index: 3;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  margin: -16px 0 10px;
+  padding: 6px 12px 6px 62px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
+  font-size: 13px;
+}
+.now-next .live { color: var(--accent); }
+.now-next .next { color: var(--go-hi); }
+.now-next .unplaced { color: #e6b84a; }
+.script .follow { position: sticky; top: 40px; float: right; z-index: 2; background: var(--accent); border-color: var(--accent); color: #0b1620; }
+/* a margin for cue numbers, then the text */
+.para { display: grid; grid-template-columns: 52px minmax(0, 72ch); column-gap: 10px; margin: 0 0 6px; padding: 2px 0; border-radius: 4px; }
+.para .cues { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
+.para .place { grid-column: 2; display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 4px; }
+.para .place button { font-size: 13px; padding: 3px 10px; }
+.para.current { background: rgba(74, 163, 223, 0.12); }
+.para.next { background: rgba(46, 158, 79, 0.18); box-shadow: inset 3px 0 0 var(--go); }
+.para.pickable .w { cursor: pointer; border-radius: 3px; }
+.para.pickable .w:hover { background: var(--panel-2); }
+.w.picked { outline: 2px solid var(--accent); }
+/* the word a cue goes on */
+.w.cued { text-decoration: underline 3px var(--muted-text); text-underline-offset: 4px; }
+.w.cued.current { text-decoration-color: var(--accent); }
+.w.cued.next { text-decoration-color: var(--go-hi); }
+.w.cued.selected { outline: 2px solid var(--text); }
+.cue { font-size: 12px; font-weight: 700; padding: 1px 6px; min-width: 40px; border-radius: 4px; }
+.cue:disabled { opacity: 1; cursor: default; }
+.cue.current { color: var(--accent); border-color: var(--accent); }
+.cue.next { background: var(--go); border-color: var(--go); color: white; }
+.cue.selected { outline: 2px solid var(--text); }
+.para.h1 .text, .para.h2 .text { font-weight: 700; }
 .para.h1 { font-size: 22px; font-weight: 700; margin-top: 28px; }
 .para.h2 { font-size: 18px; font-weight: 700; margin-top: 20px; }
 .para.h3 { font-weight: 700; }
 /* a table row, such as a line of the cast list */
-.para.row { display: grid; gap: 16px; margin: 0; padding: 3px 0; border-bottom: 1px solid var(--line); }
+.para.row { display: grid; gap: 16px; margin: 0 0 0 62px; padding: 3px 0; border-bottom: 1px solid var(--line); max-width: 72ch; border-radius: 0; }
 .para.page {
+  display: block;
   max-width: 72ch;
   text-align: right;
   color: var(--muted-text);
   font-size: 12px;
   border-top: 1px dashed var(--line);
-  margin: 12px 0;
+  margin: 12px 0 12px 62px;
 }
 
-/* iPad portrait: a narrower outline */
+/* the Cues panel: the link to cuemute and its scenes */
+.cues-panel { background: var(--panel); border-left: 1px solid var(--line); padding: 12px; }
+.cues-panel h3 { margin: 0 0 4px; }
+.cues-panel h4 { margin: 14px 0 4px; }
+.link-url { overflow-wrap: anywhere; margin: 0 0 6px; }
+.link-problem { color: #ef8a80; margin: 6px 0; }
+.link-form { display: flex; gap: 6px; }
+.scene-list { list-style: none; margin: 8px 0; padding: 0; }
+.scene-list li {
+  display: grid;
+  grid-template-columns: 44px 1fr auto;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 4px;
+  border-bottom: 1px solid var(--line);
+  border-radius: 4px;
+  cursor: pointer;
+}
+.scene-list li:hover { background: var(--panel-2); }
+.scene-list li.selected { background: #2a3442; outline: 1px solid var(--accent); }
+.scene-list li.next { box-shadow: inset 3px 0 0 var(--go); }
+.scene-list li.current .num { color: var(--accent); }
+.scene-list li.unplaced .num { color: #e6b84a; }
+.scene-list .num { font-weight: 700; }
+.scene-list .name { display: flex; flex-direction: column; min-width: 0; }
+.scene-list .name .hint { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; }
+.scene-list .unplace { padding: 0 8px; font-size: 14px; }
+
+/* iPad portrait: a narrower outline, and none beside the Cues panel */
 @media (max-width: 1000px) {
   .reader { grid-template-columns: 170px 1fr; }
+  .reader.with-panel { grid-template-columns: 1fr 300px; }
+  .reader.with-panel .outline { display: none; }
 }
 
 /* phones: the outline gives way to the script */
 @media (max-width: 600px) {
-  .reader { grid-template-columns: 1fr; }
+  .reader, .reader.with-panel { grid-template-columns: 1fr; }
+  .cues-panel { border-left: 0; border-top: 1px solid var(--line); max-height: 40vh; }
   .outline { display: none; }
   .script { padding: 12px 16px 50vh; }
   .production-list li { grid-template-columns: 1fr; grid-template-areas: "name" "hint" "actions"; }

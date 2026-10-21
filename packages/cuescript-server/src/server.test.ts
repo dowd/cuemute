@@ -72,7 +72,7 @@ describe("HTTP API", () => {
     const changes: string[] = [];
     productions.on("change", (x) => changes.push(x));
     const res = await uploadScript(id, "# ACT 1\nFELIX. Hello\n");
-    expect(res.json()).toEqual({ paragraphs: 2 });
+    expect(res.json()).toEqual({ paragraphs: 2, cues: 0 });
     expect(changes).toEqual([id]);
     const view = (await app.inject({ method: "GET", url: `/api/productions/${id}` })).json();
     expect(view.script).toMatchObject({ name: "script.txt", paragraphs: 2 });
