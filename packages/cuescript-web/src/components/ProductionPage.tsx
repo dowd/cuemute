@@ -110,6 +110,11 @@ export function ProductionPage({ id }: { id: string }) {
             </button>
           )}
           <button onClick={() => picker.current?.click()}>{p.script ? "Import new version…" : "Import script…"}</button>
+          {p.script && (
+            <a className="button" href={`?p=${encodeURIComponent(id)}&print`} target="_blank" rel="noopener" title="The script with its cues, to print or save as PDF or HTML">
+              Print
+            </a>
+          )}
           <a className="button" href={`/api${path}/export`} download title="Save this production as a file">
             Export
           </a>

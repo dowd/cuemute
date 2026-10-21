@@ -89,6 +89,18 @@ While cuemute is linked, the script keeps the next scene's line a third of the w
 
 If you scroll the script, it stops following. Select **Follow cues** to start again.
 
+## Print the prompt book
+
+Select **Print** in the header. The prompt book opens in a new tab: the script, with each cue in the margin beside its line, a mark on the word it goes on, and notes under their lines. It is black on white, with the script's own colours.
+
+1. Choose the departments to include, and whether to show notes. For example, untick everything but **LX** for the lighting operator's copy.
+2. Choose **A4** or **Letter**.
+3. Select **Print or save as PDF** to print it, or save it as a PDF from the print window.
+
+**Download HTML** saves the prompt book as one HTML file that opens in any browser, with no cuescript needed.
+
+Your choices are kept in the page's address, so you can bookmark a copy for each department. Cues and notes that a new script version couldn't place are listed at the end, so nothing is missing from paper.
+
 ## Import a new version of the script
 
 Select **Import new version…**. cuescript finds each cue and note again by the words that end at it, so they stay in place when lines move.

@@ -1,59 +1,18 @@
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   paragraphText,
-  splitSpeaker,
   type Cue,
   type LinkState,
   type MuteCue,
   type Note,
   type Paragraph,
   type ProductionView,
-  type Run,
   type Script,
 } from "@cuemute/script";
 import { cueLabel, cueTitle, departmentOf, isSelected, type Selection, type WordAt } from "../cues.ts";
+import { formatted, paragraphWords } from "../render.tsx";
 import type { Run as RunAction } from "../useRun.ts";
 import { WordActions } from "./WordActions.tsx";
-
-// Word's highlighter colours, made see-through so text stays readable on a dark screen.
-const HIGHLIGHTS: Record<string, string> = {
-  yellow: "rgba(230, 216, 74, 0.35)",
-  green: "rgba(92, 184, 92, 0.35)",
-  cyan: "rgba(74, 200, 223, 0.35)",
-  magenta: "rgba(227, 119, 194, 0.35)",
-  blue: "rgba(74, 120, 223, 0.4)",
-  red: "rgba(217, 83, 79, 0.4)",
-  darkYellow: "rgba(180, 160, 40, 0.4)",
-  darkGreen: "rgba(40, 120, 60, 0.4)",
-  lightGray: "rgba(200, 200, 200, 0.25)",
-};
-
-// Script colours are chosen for white paper; lightening them keeps dark ones
-// readable on the dark screen.
-function runStyle(r: Run): CSSProperties | undefined {
-  if (!r.colour && !r.highlight) return undefined;
-  return {
-    color: r.colour ? `color-mix(in srgb, #${r.colour} 70%, white)` : undefined,
-    background: r.highlight ? (HIGHLIGHTS[r.highlight] ?? "rgba(230, 216, 74, 0.35)") : undefined,
-  };
-}
-
-function formatted(run: Run, node: ReactNode, key: number): ReactNode {
-  if (run.italic) node = <em>{node}</em>;
-  if (run.bold) node = <strong>{node}</strong>;
-  return (
-    <span key={key} style={runStyle(run)}>
-      {node}
-    </span>
-  );
-}
-
-// A plain text import has no bold, so the speaker's name is bolded here.
-function displayRuns(p: Paragraph): Run[] {
-  if (p.style !== "p" || p.runs.length !== 1 || p.runs[0]!.bold) return p.runs;
-  const { speaker, rest } = splitSpeaker(p.runs[0]!.text);
-  return speaker ? [{ text: `${speaker}. `, bold: true }, { ...p.runs[0]!, text: rest }] : p.runs;
-}
 
 interface Props {
   script: Script;
@@ -132,40 +91,24 @@ export function ScriptReader({ script, production, link, editing, selection, onS
     onSelect(isSelected(selection, c) ? null : s);
   };
 
-  // each word in a span, numbered as the server numbers them
-  const words = (p: Paragraph, marks: Map<number, Cue[]>) => {
-    let word = -1;
-    let afterSpace = true;
-    return displayRuns(p).map((run, ri) => {
-      const parts = run.text.split(/(\s+)/).map((part, pi) => {
-        if (!part) return null;
-        if (/^\s+$/.test(part)) {
-          afterSpace = true;
-          return part;
-        }
-        // a word split across two runs keeps one number
-        if (afterSpace) word++;
-        afterSpace = false;
-        const w = word;
-        const here = marks.get(w);
-        const first = here?.[0];
-        const isPicked = picked?.paragraph === p.id && picked.word === w;
-        const classes = ["w", first && "cued", first && cueClass(first), isPicked && "picked"];
-        const colour = first?.kind === "cue" ? departmentOf(first, departments)?.colour : undefined;
-        return (
-          <span
-            key={pi}
-            className={classes.filter(Boolean).join(" ")}
-            style={colour ? { textDecorationColor: colour } : undefined}
-            onClick={editing ? () => setPicked(isPicked ? null : { paragraph: p.id, word: w }) : undefined}
-          >
-            {part}
-          </span>
-        );
-      });
-      return formatted(run, parts, ri);
+  // each word in a span, marked if a cue sits on it, and pickable while editing
+  const words = (p: Paragraph, marks: Map<number, Cue[]>) =>
+    paragraphWords(p, (w, text, key) => {
+      const first = marks.get(w)?.[0];
+      const isPicked = picked?.paragraph === p.id && picked.word === w;
+      const classes = ["w", first && "cued", first && cueClass(first), isPicked && "picked"];
+      const colour = first?.kind === "cue" ? departmentOf(first, departments)?.colour : undefined;
+      return (
+        <span
+          key={key}
+          className={classes.filter(Boolean).join(" ")}
+          style={colour ? { textDecorationColor: colour } : undefined}
+          onClick={editing ? () => setPicked(isPicked ? null : { paragraph: p.id, word: w }) : undefined}
+        >
+          {text}
+        </span>
+      );
     });
-  };
 
   const paragraph = (p: Paragraph) => {
     if (p.style === "page") {
