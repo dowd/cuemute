@@ -37,3 +37,17 @@ export function nextNumber(before: string[]): string {
   }
   return "1";
 }
+
+// What one screen shows: departments it hides (so a new one shows), and notes.
+export interface Filter {
+  hidden: string[];
+  notes: boolean;
+}
+
+export const showAll: Filter = { hidden: [], notes: true };
+
+// the cues and notes a screen shows, by its filter
+export function filtered<T extends { cues: Cue[]; notes: Note[]; departments: Department[] }>(p: T, f: Filter): T {
+  const shown = (c: Cue) => !f.hidden.includes(departmentOf(c, p.departments)?.id ?? "");
+  return { ...p, cues: p.cues.filter(shown), notes: f.notes ? p.notes : [] };
+}

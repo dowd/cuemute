@@ -1,6 +1,6 @@
 # cuescript: design
 
-Status: agreed, not started. Decided 21 October 2026.
+Status: milestones 1 to 4 built, on the `feat/cuescript` branch, with printing and HTML export from the later list. Decided 21 October 2026.
 
 cuescript is a text-based prompt book for theatre. It shows the script with every department's cues placed on the words they go on. It links to cuemute for radio mic mutes, and follows cuemute's live and next scenes during a show.
 

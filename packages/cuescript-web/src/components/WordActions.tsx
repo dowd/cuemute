@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { MUTES, type Cue, type LinkState, type Note, type ProductionView } from "@cuemute/script";
 import { api } from "../api.ts";
-import { cueLabel, nextNumber, type Selection, type WordAt } from "../cues.ts";
+import { cueLabel, nextNumber, type Filter, type Selection, type WordAt } from "../cues.ts";
 import type { Run } from "../useRun.ts";
 
 interface Props {
   production: ProductionView;
   link: LinkState;
+  // what this screen shows: only those departments are offered, so a new cue never disappears
+  filter: Filter;
   selection: Selection;
   at: WordAt;
   // each paragraph's position in the script, to number a new cue
@@ -20,11 +22,11 @@ type Form = { kind: "cue"; department: string; number: string; label: string } |
 
 // What can be done at a picked word: place or move the selected item here,
 // add a cuemute scene, a department cue, or a note.
-export function WordActions({ production: p, link, selection, at, paragraphIndex, onSelect, onDone, run }: Props) {
+export function WordActions({ production: p, link, filter, selection, at, paragraphIndex, onSelect, onDone, run }: Props) {
   const [form, setForm] = useState<Form>(null);
   const path = `/productions/${encodeURIComponent(p.id)}`;
-  const departments = p.departments.filter((d) => d.id !== MUTES);
-  const connected = link.status === "connected";
+  const departments = p.departments.filter((d) => d.id !== MUTES && !filter.hidden.includes(d.id));
+  const connected = link.status === "connected" && !filter.hidden.includes(MUTES);
 
   // the selected item, and what "place here" means for it
   let moveLabel = "";
@@ -149,7 +151,7 @@ export function WordActions({ production: p, link, selection, at, paragraphIndex
           + {d.code || d.name}
         </button>
       ))}
-      <button onClick={() => setForm({ kind: "note", text: "" })}>+ Note</button>
+      {filter.notes && <button onClick={() => setForm({ kind: "note", text: "" })}>+ Note</button>}
       <button onClick={onDone}>Cancel</button>
     </div>
   );

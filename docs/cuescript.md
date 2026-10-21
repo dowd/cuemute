@@ -89,6 +89,14 @@ While cuemute is linked, the script keeps the next scene's line a third of the w
 
 If you scroll the script, it stops following. Select **Follow cues** to start again.
 
+## Choose what a screen shows
+
+**Show** in the header chooses which departments' cues, and whether notes, show on this screen. For example, the LX operator's iPad can show only LX cues, while the stage manager's laptop shows everything. Each screen keeps its own choice, for each production, in its browser. A department added later shows until you turn it off.
+
+With mutes turned off, the script still follows cuemute's live and next scenes. While you edit, the word bar offers only the departments that show, so a new cue never disappears as you add it.
+
+**Print** starts with the same choice, so a department's own prompt book is one click away.
+
 ## Print the prompt book
 
 Select **Print** in the header. The prompt book opens in a new tab: the script, with each cue in the margin beside its line, a mark on the word it goes on, and notes under their lines. It is black on white, with the script's own colours.

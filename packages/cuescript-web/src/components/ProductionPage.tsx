@@ -5,8 +5,10 @@ import { useProduction } from "../useProduction.ts";
 import { useRun } from "../useRun.ts";
 import { useScript } from "../useScript.ts";
 import type { Selection } from "../cues.ts";
+import { useFilter } from "../useFilter.ts";
 import { CuesPanel } from "./CuesPanel.tsx";
 import { ScriptReader } from "./ScriptReader.tsx";
+import { ShowMenu } from "./ShowMenu.tsx";
 
 // Whether this screen has the Cues panel open is a per-screen choice, so a
 // screen that only follows the show never places a cue by a stray tap.
@@ -39,6 +41,7 @@ export function ProductionPage({ id }: { id: string }) {
   const [notice, setNotice] = useState<string | null>(null);
   const [panel, setPanel] = useState(loadPanel);
   const [selection, setSelection] = useState<Selection>(null);
+  const [filter, setFilter] = useFilter(id);
   const picker = useRef<HTMLInputElement>(null);
   const production = state.status === "ready" ? state.production : null;
   const script = useScript(id, production?.script ?? null);
@@ -89,6 +92,15 @@ export function ProductionPage({ id }: { id: string }) {
     });
   };
 
+  // the prompt book starts with what this screen shows
+  const printUrl = [
+    `?p=${encodeURIComponent(id)}&print`,
+    filter.hidden.length ? `hide=${filter.hidden.join(",")}` : "",
+    filter.notes ? "" : "notes=0",
+  ]
+    .filter(Boolean)
+    .join("&");
+
   return (
     <div className="production">
       <header>
@@ -110,8 +122,9 @@ export function ProductionPage({ id }: { id: string }) {
             </button>
           )}
           <button onClick={() => picker.current?.click()}>{p.script ? "Import new version…" : "Import script…"}</button>
+          {p.script && <ShowMenu departments={p.departments} filter={filter} onChange={setFilter} />}
           {p.script && (
-            <a className="button" href={`?p=${encodeURIComponent(id)}&print`} target="_blank" rel="noopener" title="The script with its cues, to print or save as PDF or HTML">
+            <a className="button" href={printUrl} target="_blank" rel="noopener" title="The script with its cues, to print or save as PDF or HTML">
               Print
             </a>
           )}
@@ -144,6 +157,7 @@ export function ProductionPage({ id }: { id: string }) {
             production={p}
             link={link}
             editing={panel}
+            filter={filter}
             selection={selection}
             onSelect={setSelection}
             run={run}

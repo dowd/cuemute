@@ -9,7 +9,7 @@ import {
   type ProductionView,
   type Script,
 } from "@cuemute/script";
-import { cueLabel, cueTitle, departmentOf, isSelected, type Selection, type WordAt } from "../cues.ts";
+import { cueLabel, cueTitle, departmentOf, filtered, isSelected, type Filter, type Selection, type WordAt } from "../cues.ts";
 import { formatted, paragraphWords } from "../render.tsx";
 import type { Run as RunAction } from "../useRun.ts";
 import { WordActions } from "./WordActions.tsx";
@@ -20,6 +20,8 @@ interface Props {
   link: LinkState;
   // the Cues panel is open on this screen, so words can be picked
   editing: boolean;
+  // what this screen shows
+  filter: Filter;
   selection: Selection;
   onSelect: (s: Selection) => void;
   run: RunAction;
@@ -29,11 +31,12 @@ interface Props {
 // in the margin, and notes under their lines. While cuemute is linked, it keeps
 // the next scene's cue in view until the reader scrolls by hand. With the Cues
 // panel open, selecting a word offers what can be done there.
-export function ScriptReader({ script, production, link, editing, selection, onSelect, run }: Props) {
+export function ScriptReader({ script, production, link, editing, filter, selection, onSelect, run }: Props) {
   const box = useRef<HTMLElement>(null);
   const [following, setFollowing] = useState(true);
   const [picked, setPicked] = useState<WordAt | null>(null);
-  const { cues, notes, departments } = production;
+  // the screen shows its filter's cues, but follows cuemute even with mutes hidden
+  const { cues, notes, departments } = filtered(production, filter);
   const headings = script.paragraphs.filter((p) => p.style === "h1" || p.style === "h2");
   const current = link.status === "connected" ? link.current : null;
   const next = link.status === "connected" ? link.next : null;
@@ -43,7 +46,7 @@ export function ScriptReader({ script, production, link, editing, selection, onS
   for (const c of cues) if (c.at) cuesIn.set(c.at.paragraph, [...(cuesIn.get(c.at.paragraph) ?? []), c]);
   const notesIn = new Map<string, Note[]>();
   for (const n of notes) if (n.at) notesIn.set(n.at.paragraph, [...(notesIn.get(n.at.paragraph) ?? []), n]);
-  const sceneCue = new Map(cues.flatMap((c) => (c.kind === "mute" ? [[c.scene, c] as const] : [])));
+  const sceneCue = new Map(production.cues.flatMap((c) => (c.kind === "mute" ? [[c.scene, c] as const] : [])));
 
   // the next scene's cue, or the nearest placed scene before it in cuemute's order
   let follow: MuteCue | undefined;
@@ -183,6 +186,7 @@ export function ScriptReader({ script, production, link, editing, selection, onS
           <WordActions
             production={production}
             link={link}
+            filter={filter}
             selection={selection}
             at={picked}
             paragraphIndex={paragraphIndex}
