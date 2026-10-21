@@ -125,22 +125,65 @@ function tidy(runs: Run[]): Run[] {
   return out.filter((r) => r.text);
 }
 
+// the runs of one <w:p>, tidied
+function paragraphRuns(body: string): Run[] {
+  const runs: Run[] = [];
+  for (const [run] of body.matchAll(/<w:r(?:\s[^>]*)?>[\s\S]*?<\/w:r>/g)) {
+    let text = "";
+    for (const [, t] of run.matchAll(/<w:t(?:\s[^>]*)?>([^<]*)<\/w:t>|<w:(?:tab|br|cr)\b[^>]*\/>/g)) {
+      text += t === undefined ? " " : decode(t);
+    }
+    if (text) runs.push({ text, ...runFormat(run) });
+  }
+  return tidy(runs);
+}
+
+const PARAGRAPH = /<w:p(?:\s[^>]*)?(?:\/>|>([\s\S]*?)<\/w:p>)/g;
+
+function paragraph(body: string, id: () => string): Paragraph | null {
+  const runs = paragraphRuns(body);
+  if (runs.length === 0) return null;
+  const text = runs.map((r) => r.text).join("");
+  const styleId = /<w:pStyle w:val="([^"]+)"/.exec(body)?.[1] ?? "";
+  return { id: id(), style: PAGE.test(text) ? "page" : (HEADINGS[styleId] ?? "p"), runs };
+}
+
+// A table row becomes one paragraph whose cells hold each cell's text. A table
+// with one column is usually a box around text, so its text stays as paragraphs.
+function table(xml: string, id: () => string): Paragraph[] {
+  const rows = [...xml.matchAll(/<w:tr(?:\s[^>]*)?>([\s\S]*?)<\/w:tr>/g)].map(([, row = ""]) =>
+    [...row.matchAll(/<w:tc(?:\s[^>]*)?>([\s\S]*?)<\/w:tc>/g)].map(([, cell = ""]) => cell),
+  );
+  const out: Paragraph[] = [];
+  if (rows.every((cells) => cells.length <= 1)) {
+    for (const [cell = ""] of rows) {
+      for (const [, body = ""] of cell.matchAll(PARAGRAPH)) {
+        const p = paragraph(body, id);
+        if (p) out.push(p);
+      }
+    }
+    return out;
+  }
+  for (const cells of rows) {
+    // the paragraphs of a cell join into one line
+    const runs = cells.map((cell) =>
+      tidy([...cell.matchAll(PARAGRAPH)].flatMap(([, body = ""], i) => [...(i > 0 ? [{ text: " " }] : []), ...paragraphRuns(body)])),
+    );
+    if (runs.some((r) => r.length > 0)) out.push({ id: id(), style: "row", runs: [], cells: runs });
+  }
+  return out;
+}
+
 function docxParagraphs(xml: string, id: () => string): Paragraph[] {
   const out: Paragraph[] = [];
-  for (const [, body = ""] of xml.matchAll(/<w:p(?:\s[^>]*)?(?:\/>|>([\s\S]*?)<\/w:p>)/g)) {
-    const runs: Run[] = [];
-    for (const [run] of body.matchAll(/<w:r(?:\s[^>]*)?>[\s\S]*?<\/w:r>/g)) {
-      let text = "";
-      for (const [, t] of run.matchAll(/<w:t(?:\s[^>]*)?>([^<]*)<\/w:t>|<w:(?:tab|br|cr)\b[^>]*\/>/g)) {
-        text += t === undefined ? " " : decode(t);
-      }
-      if (text) runs.push({ text, ...runFormat(run) });
+  // tables and paragraphs, in the order they come
+  for (const [block] of xml.matchAll(/<w:tbl>[\s\S]*?<\/w:tbl>|<w:p(?:\s[^>]*)?(?:\/>|>[\s\S]*?<\/w:p>)/g)) {
+    if (block.startsWith("<w:tbl>")) {
+      out.push(...table(block, id));
+    } else {
+      const p = paragraph(block.replace(/^<w:p[^>]*>|<\/w:p>$/g, ""), id);
+      if (p) out.push(p);
     }
-    const tidied = tidy(runs);
-    if (tidied.length === 0) continue;
-    const text = tidied.map((r) => r.text).join("");
-    const styleId = /<w:pStyle w:val="([^"]+)"/.exec(body)?.[1] ?? "";
-    out.push({ id: id(), style: PAGE.test(text) ? "page" : (HEADINGS[styleId] ?? "p"), runs: tidied });
   }
   return out;
 }

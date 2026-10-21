@@ -15,9 +15,12 @@ export const runSchema = z.object({
 
 export const paragraphSchema = z.object({
   id: z.string().min(1),
-  // a heading level, body text, or a page number typed into the script
-  style: z.enum(["h1", "h2", "h3", "p", "page"]),
+  // a heading level, body text, a page number typed into the script, or a
+  // row of a table, such as a cast list
+  style: z.enum(["h1", "h2", "h3", "p", "page", "row"]),
+  // a row's text is in cells, and its runs are empty
   runs: z.array(runSchema),
+  cells: z.array(z.array(runSchema)).optional(),
 });
 
 export const scriptSchema = z.object({
@@ -43,7 +46,11 @@ export const scriptInfo = (script: Script): ScriptInfo => ({
   paragraphs: script.paragraphs.length,
 });
 
-export const paragraphText = (p: Paragraph): string => p.runs.map((r) => r.text).join("");
+const runsText = (runs: Run[]) => runs.map((r) => r.text).join("");
+
+// a paragraph's plain text; a row's cells are joined by " · "
+export const paragraphText = (p: Paragraph): string =>
+  p.cells ? p.cells.map(runsText).filter(Boolean).join(" · ") : runsText(p.runs);
 
 // "FELIX. Bonjour…" is FELIX speaking. A name is capitals, then a full stop and a space.
 const SPEAKER = /^([A-Z][A-Z0-9’'&/ -]{0,30}?)\.\s+(.*)$/s;

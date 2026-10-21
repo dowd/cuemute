@@ -81,6 +81,42 @@ describe("readScript from Word", () => {
   });
 });
 
+describe("readScript tables", () => {
+  const cell = (...paras: string[]) => `<w:tc><w:tcPr/>${paras.join("")}</w:tc>`;
+  const row = (...cells: string[]) => `<w:tr><w:trPr/>${cells.join("")}</w:tr>`;
+  const tbl = (...rows: string[]) => `<w:tbl><w:tblPr/>${rows.join("")}</w:tbl>`;
+
+  it("makes each row one paragraph of cells, in place among the paragraphs", () => {
+    const script = readScript(
+      docx(
+        para(run("LIST OF CHARACTERS"), "Heading1") +
+          tbl(
+            row(cell(para(run("FELIX", "<w:b/>"))), cell(para(run("Annette")))),
+            row(cell(para(run("CHORUS"))), cell(para(run("Youth")), para(run("and children")))),
+            row(cell("<w:p/>"), cell("<w:p/>")),
+          ) +
+          para(run("ACT 1")),
+      ),
+      "x.docx",
+    );
+    expect(script.paragraphs.map(({ id: _, ...p }) => p)).toEqual([
+      { style: "h1", runs: [{ text: "LIST OF CHARACTERS" }] },
+      { style: "row", runs: [], cells: [[{ text: "FELIX", bold: true }], [{ text: "Annette" }]] },
+      { style: "row", runs: [], cells: [[{ text: "CHORUS" }], [{ text: "Youth and children" }]] },
+      { style: "p", runs: [{ text: "ACT 1" }] },
+    ]);
+    expect(paragraphText(script.paragraphs[1]!)).toBe("FELIX · Annette");
+  });
+
+  it("keeps the text of a one-column table as paragraphs", () => {
+    const script = readScript(docx(tbl(row(cell(para(run("A note")), para(run("Two lines")))))), "x.docx");
+    expect(script.paragraphs.map((p) => [p.style, paragraphText(p)])).toEqual([
+      ["p", "A note"],
+      ["p", "Two lines"],
+    ]);
+  });
+});
+
 describe("readScript from text", () => {
   it("makes each line a paragraph, with # headings and page numbers", () => {
     const script = readScript(Buffer.from("﻿# ACT 1\n\n## Scene 1\nFELIX.  Hello\r\n12\n"), "show.md");

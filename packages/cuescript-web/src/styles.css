@@ -116,6 +116,8 @@ header strong { font-size: 18px; }
 .para.h1 { font-size: 22px; font-weight: 700; margin-top: 28px; }
 .para.h2 { font-size: 18px; font-weight: 700; margin-top: 20px; }
 .para.h3 { font-weight: 700; }
+/* a table row, such as a line of the cast list */
+.para.row { display: grid; gap: 16px; margin: 0; padding: 3px 0; border-bottom: 1px solid var(--line); }
 .para.page {
   max-width: 72ch;
   text-align: right;

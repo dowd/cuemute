@@ -81,6 +81,21 @@ export function ScriptReader({ script }: { script: Script }) {
             <div key={p.id} data-id={p.id} className="para page">
               p. {paragraphText(p)}
             </div>
+          ) : p.style === "row" ? (
+            <div
+              key={p.id}
+              data-id={p.id}
+              className="para row"
+              style={{ gridTemplateColumns: `repeat(${p.cells?.length ?? 1}, minmax(0, 1fr))` }}
+            >
+              {p.cells?.map((cell, i) => (
+                <span key={i}>
+                  {cell.map((r, j) => (
+                    <RunText key={j} run={r} />
+                  ))}
+                </span>
+              ))}
+            </div>
           ) : (
             <p key={p.id} data-id={p.id} className={`para ${p.style}`}>
               <ParagraphText p={p} />
