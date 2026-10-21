@@ -6,19 +6,25 @@
     "packages/core",
     "packages/consoles",
     "packages/server",
-    "packages/web"
+    "packages/web",
+    "packages/script",
+    "packages/cuescript-server",
+    "packages/cuescript-web"
   ],
   "scripts": {
     "dev": "concurrently -n server,web -c blue,green \"npm run dev -w @cuemute/server\" \"npm run dev -w @cuemute/web\"",
     "build": "npm run build -w @cuemute/web",
     "start": "npm run build && npm run start -w @cuemute/server",
+    "dev:cuescript": "concurrently -n server,web -c blue,green \"npm run dev -w @cuemute/cuescript-server\" \"npm run dev -w @cuemute/cuescript-web\"",
+    "build:cuescript": "npm run build -w @cuemute/cuescript-web",
+    "start:cuescript": "npm run build:cuescript && npm run start -w @cuemute/cuescript-server",
     "package": "node scripts/build-binary.mjs",
     "screenshots": "npm run build && node scripts/screenshots.mjs",
     "docs": ".venv-docs/bin/mkdocs serve",
     "docs:build": ".venv-docs/bin/mkdocs build --strict",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc -p packages/core && tsc -p packages/consoles && tsc -p packages/server && tsc -p packages/web"
+    "typecheck": "tsc -p packages/core && tsc -p packages/consoles && tsc -p packages/server && tsc -p packages/web && tsc -p packages/script && tsc -p packages/cuescript-server && tsc -p packages/cuescript-web"
   },
   "devDependencies": {
     "@types/node": "^26.6.5",

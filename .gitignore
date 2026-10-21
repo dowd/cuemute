@@ -4,6 +4,7 @@ dist/
 .DS_Store
 # show files written by a local run
 shows/
+productions/
 # local settings, see cuemute.example.json
 cuemute.json
 .venv-docs/

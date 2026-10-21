@@ -38,6 +38,9 @@ nav:
       - Manage shows: shows.md
       - Print a cue sheet: cue-sheet.md
       - Stream Deck and Companion: companion.md
+  - cuescript:
+      - cuescript (in development): cuescript.md
+      - Design: cuescript-design.md
   - Reference:
       - Settings: settings.md
       - HTTP API: api.md
