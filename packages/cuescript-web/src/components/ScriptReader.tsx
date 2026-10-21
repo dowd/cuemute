@@ -4,10 +4,16 @@ import {
   splitSpeaker,
   type Cue,
   type LinkState,
+  type MuteCue,
+  type Note,
   type Paragraph,
+  type ProductionView,
   type Run,
   type Script,
 } from "@cuemute/script";
+import { cueLabel, cueTitle, departmentOf, isSelected, type Selection, type WordAt } from "../cues.ts";
+import type { Run as RunAction } from "../useRun.ts";
+import { WordActions } from "./WordActions.tsx";
 
 // Word's highlighter colours, made see-through so text stays readable on a dark screen.
 const HIGHLIGHTS: Record<string, string> = {
@@ -49,54 +55,60 @@ function displayRuns(p: Paragraph): Run[] {
   return speaker ? [{ text: `${speaker}. `, bold: true }, { ...p.runs[0]!, text: rest }] : p.runs;
 }
 
-export interface WordAt {
-  paragraph: string;
-  word: number;
-}
-
 interface Props {
   script: Script;
-  cues: Cue[];
+  production: ProductionView;
   link: LinkState;
   // the Cues panel is open on this screen, so words can be picked
   editing: boolean;
-  selected: string | null; // a cuemute scene id
-  onSelect: (scene: string | null) => void;
-  onPlace: (at: WordAt) => void;
-  onNewScene: (at: WordAt) => void;
+  selection: Selection;
+  onSelect: (s: Selection) => void;
+  run: RunAction;
 }
 
-// The script as it reads in the source, with each mute cue marked on its word
-// and in the margin. While cuemute is linked, it keeps the next scene's cue in
-// view until the reader scrolls by hand. With the Cues panel open, selecting a
-// word offers to place the selected scene there, or add a scene.
-export function ScriptReader({ script, cues, link, editing, selected, onSelect, onPlace, onNewScene }: Props) {
+// The script as it reads in the source, with every cue marked on its word and
+// in the margin, and notes under their lines. While cuemute is linked, it keeps
+// the next scene's cue in view until the reader scrolls by hand. With the Cues
+// panel open, selecting a word offers what can be done there.
+export function ScriptReader({ script, production, link, editing, selection, onSelect, run }: Props) {
   const box = useRef<HTMLElement>(null);
   const [following, setFollowing] = useState(true);
   const [picked, setPicked] = useState<WordAt | null>(null);
+  const { cues, notes, departments } = production;
   const headings = script.paragraphs.filter((p) => p.style === "h1" || p.style === "h2");
   const current = link.status === "connected" ? link.current : null;
   const next = link.status === "connected" ? link.next : null;
+  const paragraphIndex = new Map(script.paragraphs.map((p, i) => [p.id, i]));
 
-  const byParagraph = new Map<string, Cue[]>();
-  for (const c of cues) byParagraph.set(c.at.paragraph, [...(byParagraph.get(c.at.paragraph) ?? []), c]);
-  const cueOf = new Map(cues.map((c) => [c.scene, c]));
+  const cuesIn = new Map<string, Cue[]>();
+  for (const c of cues) if (c.at) cuesIn.set(c.at.paragraph, [...(cuesIn.get(c.at.paragraph) ?? []), c]);
+  const notesIn = new Map<string, Note[]>();
+  for (const n of notes) if (n.at) notesIn.set(n.at.paragraph, [...(notesIn.get(n.at.paragraph) ?? []), n]);
+  const sceneCue = new Map(cues.flatMap((c) => (c.kind === "mute" ? [[c.scene, c] as const] : [])));
 
   // the next scene's cue, or the nearest placed scene before it in cuemute's order
-  let follow: Cue | undefined;
+  let follow: MuteCue | undefined;
   if (link.status === "connected") {
     for (let i = link.scenes.findIndex((s) => s.id === (next ?? current)); i >= 0 && !follow; i--) {
-      follow = cueOf.get(link.scenes[i]!.id);
+      follow = sceneCue.get(link.scenes[i]!.id);
     }
   }
-  // while editing, the selected scene's cue
-  const target = (editing && selected ? cueOf.get(selected) : undefined) ?? follow;
+  // while editing, the selected item's line
+  const selectedAt =
+    editing && selection
+      ? selection.kind === "scene"
+        ? sceneCue.get(selection.id)?.at
+        : selection.kind === "cue"
+          ? cues.find((c) => c.id === selection.id)?.at
+          : notes.find((n) => n.id === selection.id)?.at
+      : undefined;
+  const target = selectedAt?.paragraph ?? follow?.at.paragraph;
 
   useEffect(() => {
-    const el = target && box.current?.querySelector<HTMLElement>(`[data-id="${target.at.paragraph}"]`);
+    const el = target && box.current?.querySelector<HTMLElement>(`[data-id="${target}"]`);
     if (!following || !el || !box.current) return;
     box.current.scrollTo({ top: el.offsetTop - box.current.clientHeight / 3, behavior: "smooth" });
-  }, [target?.at.paragraph, following, script]);
+  }, [target, following, script]);
 
   useEffect(() => setPicked(null), [editing, script]);
 
@@ -107,9 +119,18 @@ export function ScriptReader({ script, cues, link, editing, selected, onSelect, 
   };
 
   const cueClass = (c: Cue) =>
-    [c.scene === next && "next", c.scene === current && "current", c.scene === selected && "selected"]
+    [
+      c.kind === "mute" && c.scene === next && "next",
+      c.kind === "mute" && c.scene === current && "current",
+      isSelected(selection, c) && "selected",
+    ]
       .filter(Boolean)
       .join(" ");
+
+  const select = (c: Cue) => {
+    const s: Selection = c.kind === "mute" ? { kind: "scene", id: c.scene } : { kind: "cue", id: c.id };
+    onSelect(isSelected(selection, c) ? null : s);
+  };
 
   // each word in a span, numbered as the server numbers them
   const words = (p: Paragraph, marks: Map<number, Cue[]>) => {
@@ -127,12 +148,15 @@ export function ScriptReader({ script, cues, link, editing, selected, onSelect, 
         afterSpace = false;
         const w = word;
         const here = marks.get(w);
+        const first = here?.[0];
         const isPicked = picked?.paragraph === p.id && picked.word === w;
-        const classes = ["w", here && "cued", here && cueClass(here[0]!), isPicked && "picked"];
+        const classes = ["w", first && "cued", first && cueClass(first), isPicked && "picked"];
+        const colour = first?.kind === "cue" ? departmentOf(first, departments)?.colour : undefined;
         return (
           <span
             key={pi}
             className={classes.filter(Boolean).join(" ")}
+            style={colour ? { textDecorationColor: colour } : undefined}
             onClick={editing ? () => setPicked(isPicked ? null : { paragraph: p.id, word: w }) : undefined}
           >
             {part}
@@ -163,54 +187,66 @@ export function ScriptReader({ script, cues, link, editing, selected, onSelect, 
         </div>
       );
     }
-    const here = byParagraph.get(p.id) ?? [];
+    const here = (cuesIn.get(p.id) ?? []).sort((a, b) => a.at!.word - b.at!.word);
     const marks = new Map<number, Cue[]>();
-    for (const c of here) marks.set(c.at.word, [...(marks.get(c.at.word) ?? []), c]);
+    for (const c of here) marks.set(c.at!.word, [...(marks.get(c.at!.word) ?? []), c]);
     const classes = [
       "para",
       p.style,
-      here.some((c) => c.scene === next) && "next",
-      here.some((c) => c.scene === current) && "current",
+      here.some((c) => c.kind === "mute" && c.scene === next) && "next",
+      here.some((c) => c.kind === "mute" && c.scene === current) && "current",
       editing && "pickable",
     ];
     return (
       <div key={p.id} data-id={p.id} className={classes.filter(Boolean).join(" ")}>
         <div className="cues">
-          {here.map((c) => (
-            <button
-              key={c.id}
-              className={`cue ${cueClass(c)}`}
-              title={[c.number, c.name].filter(Boolean).join(" ")}
-              disabled={!editing}
-              onClick={() => onSelect(c.scene === selected ? null : c.scene)}
-            >
-              {c.number || "–"}
-            </button>
-          ))}
-        </div>
-        <div className="text">{words(p, marks)}</div>
-        {editing && picked?.paragraph === p.id && (
-          <div className="place">
-            {selected && (
+          {here.map((c) => {
+            const colour = departmentOf(c, departments)?.colour;
+            return (
               <button
-                onClick={() => {
-                  onPlace(picked);
-                  setPicked(null);
-                }}
+                key={c.id}
+                className={`cue ${c.kind === "cue" ? "dept" : ""} ${cueClass(c)}`}
+                style={{ borderLeftColor: colour, color: c.kind === "cue" ? colour : undefined }}
+                title={cueTitle(c)}
+                disabled={!editing}
+                onClick={() => select(c)}
               >
-                Place {link.scenes.find((s) => s.id === selected)?.number || "the selected scene"} here
+                {cueLabel(c, departments)}
               </button>
-            )}
-            <button
-              onClick={() => {
-                onNewScene(picked);
-                setPicked(null);
-              }}
-            >
-              New scene here
-            </button>
-            <button onClick={() => setPicked(null)}>Cancel</button>
-          </div>
+            );
+          })}
+        </div>
+        <div className="text">
+          {words(p, marks)}
+          {here
+            .filter((c) => c.kind === "cue" && c.label)
+            .map((c) => (
+              <span key={c.id} className="cue-label" style={{ color: departmentOf(c, departments)?.colour }}>
+                {cueLabel(c, departments)}: {c.kind === "cue" && c.label}
+              </span>
+            ))}
+        </div>
+        {(notesIn.get(p.id) ?? []).map((n) => (
+          <button
+            key={n.id}
+            className={`line-note ${isSelected(selection, n) ? "selected" : ""}`}
+            disabled={!editing}
+            onClick={() => onSelect(isSelected(selection, n) ? null : { kind: "note", id: n.id })}
+          >
+            {n.text || <em>Empty note</em>}
+          </button>
+        ))}
+        {editing && picked?.paragraph === p.id && (
+          <WordActions
+            production={production}
+            link={link}
+            selection={selection}
+            at={picked}
+            paragraphIndex={paragraphIndex}
+            onSelect={onSelect}
+            onDone={() => setPicked(null)}
+            run={run}
+          />
         )}
       </div>
     );
@@ -223,7 +259,7 @@ export function ScriptReader({ script, cues, link, editing, selected, onSelect, 
     return (
       <>
         <strong>{scene.number || "–"}</strong> {scene.name}
-        {!cueOf.has(scene.id) && <span className="unplaced"> · not placed{scene.lineRef && `: ${scene.lineRef}`}</span>}
+        {!sceneCue.has(scene.id) && <span className="unplaced"> · not placed{scene.lineRef && `: ${scene.lineRef}`}</span>}
       </>
     );
   };

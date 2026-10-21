@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import type { Cue, LinkState } from "@cuemute/script";
+import type { LinkState } from "@cuemute/script";
 import { api, upload } from "../api.ts";
 import { useProduction } from "../useProduction.ts";
 import { useRun } from "../useRun.ts";
 import { useScript } from "../useScript.ts";
+import type { Selection } from "../cues.ts";
 import { CuesPanel } from "./CuesPanel.tsx";
-import { ScriptReader, type WordAt } from "./ScriptReader.tsx";
+import { ScriptReader } from "./ScriptReader.tsx";
 
 // Whether this screen has the Cues panel open is a per-screen choice, so a
 // screen that only follows the show never places a cue by a stray tap.
@@ -37,7 +38,7 @@ export function ProductionPage({ id }: { id: string }) {
   const { run, error } = useRun();
   const [notice, setNotice] = useState<string | null>(null);
   const [panel, setPanel] = useState(loadPanel);
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selection, setSelection] = useState<Selection>(null);
   const picker = useRef<HTMLInputElement>(null);
   const production = state.status === "ready" ? state.production : null;
   const script = useScript(id, production?.script ?? null);
@@ -88,16 +89,6 @@ export function ProductionPage({ id }: { id: string }) {
     });
   };
 
-  const place = (at: WordAt) =>
-    selected && run(() => api("PUT", `${path}/cues/scene/${encodeURIComponent(selected)}`, at));
-
-  const newScene = (at: WordAt) =>
-    run(async () => {
-      const { cue } = await api<{ cue: Cue }>("POST", `${path}/cues/new-scene`, at);
-      setSelected(cue.scene);
-      setNotice("Added a scene to cuemute. Set its mutes in cuemute.");
-    });
-
   return (
     <div className="production">
       <header>
@@ -145,16 +136,23 @@ export function ProductionPage({ id }: { id: string }) {
         <div className={`reader ${panel ? "with-panel" : ""}`}>
           <ScriptReader
             script={script}
-            cues={p.cues}
+            production={p}
             link={link}
             editing={panel}
-            selected={selected}
-            onSelect={setSelected}
-            onPlace={place}
-            onNewScene={newScene}
+            selection={selection}
+            onSelect={setSelection}
+            run={run}
           />
           {panel && (
-            <CuesPanel production={p} link={link} selected={selected} onSelect={setSelected} onNotice={setNotice} run={run} />
+            <CuesPanel
+              production={p}
+              link={link}
+              paragraphIndex={new Map(script.paragraphs.map((x, i) => [x.id, i]))}
+              selection={selection}
+              onSelect={setSelection}
+              onNotice={setNotice}
+              run={run}
+            />
           )}
         </div>
       ) : p.script ? (

@@ -12,15 +12,55 @@ export const anchorSchema = z.object({
   quote: z.string(),
 });
 
+// A department whose cues show in the script, such as LX. The mutes
+// department holds the cuemute scenes, and can't be removed.
+export const departmentSchema = z.object({
+  id: z.string().regex(/^[a-z0-9-]{1,40}$/),
+  name: z.string(),
+  code: z.string().max(8), // shown with each cue number, such as "LX"
+  colour: z.string().regex(/^#[0-9a-f]{6}$/),
+});
+
+export const MUTES = "mutes";
+
+export const defaultDepartments = (): Department[] => [
+  { id: MUTES, name: "Sound (mutes)", code: "", colour: "#9aa1ab" },
+  { id: "lx", name: "Lighting", code: "LX", colour: "#e6b84a" },
+  { id: "sfx", name: "Sound effects", code: "SFX", colour: "#9b6bd6" },
+  { id: "fly", name: "Flies", code: "FLY", colour: "#f08a4a" },
+  { id: "sm", name: "Stage management", code: "SM", colour: "#e377c2" },
+];
+
 // A mute cue is a cuemute scene, placed in the script. Its number and name
 // are copies, kept up to date while cuemute is linked, for when it isn't.
-export const cueSchema = z.object({
+export const muteCueSchema = z.object({
   id: z.string().min(1),
   kind: z.literal("mute"),
   scene: z.string().min(1), // the cuemute scene id
   number: z.string(),
   name: z.string(),
   at: anchorSchema,
+});
+
+// A cue for another department. cuescript shows it, and fires nothing. It is
+// unplaced (at is null) when a new script version lost its words.
+export const deptCueSchema = z.object({
+  id: z.string().min(1),
+  kind: z.literal("cue"),
+  department: z.string().min(1),
+  number: z.string(),
+  label: z.string(),
+  notes: z.string(),
+  at: anchorSchema.nullable(),
+});
+
+export const cueSchema = z.discriminatedUnion("kind", [muteCueSchema, deptCueSchema]);
+
+// a note on a line of the script; unplaced like a cue if its words are lost
+export const noteSchema = z.object({
+  id: z.string().min(1),
+  text: z.string(),
+  at: anchorSchema.nullable(),
 });
 
 // which cuemute, and which of its shows, this production goes with
@@ -35,11 +75,17 @@ export const productionSchema = z.object({
   name: z.string(),
   script: scriptSchema.nullable().default(null),
   link: linkSchema.nullable().default(null),
+  departments: z.array(departmentSchema).default(defaultDepartments),
   cues: z.array(cueSchema).default([]),
+  notes: z.array(noteSchema).default([]),
 });
 
 export type Anchor = z.infer<typeof anchorSchema>;
+export type Department = z.infer<typeof departmentSchema>;
+export type MuteCue = z.infer<typeof muteCueSchema>;
+export type DeptCue = z.infer<typeof deptCueSchema>;
 export type Cue = z.infer<typeof cueSchema>;
+export type Note = z.infer<typeof noteSchema>;
 export type Link = z.infer<typeof linkSchema>;
 export type Production = z.infer<typeof productionSchema>;
 
@@ -49,7 +95,16 @@ export function parseProduction(data: unknown): Production {
 }
 
 export function createProduction(name: string, id: string = crypto.randomUUID()): Production {
-  return { schemaVersion: 1, id, name: name.trim() || "Untitled production", script: null, link: null, cues: [] };
+  return {
+    schemaVersion: 1,
+    id,
+    name: name.trim() || "Untitled production",
+    script: null,
+    link: null,
+    departments: defaultDepartments(),
+    cues: [],
+    notes: [],
+  };
 }
 
 // what screens are sent on every change: the production without its script's
@@ -59,7 +114,9 @@ export interface ProductionView {
   name: string;
   script: ScriptInfo | null;
   link: Link | null;
+  departments: Department[];
   cues: Cue[];
+  notes: Note[];
 }
 
 export const productionView = (p: Production): ProductionView => ({
@@ -67,7 +124,9 @@ export const productionView = (p: Production): ProductionView => ({
   name: p.name,
   script: p.script ? scriptInfo(p.script) : null,
   link: p.link,
+  departments: p.departments,
   cues: p.cues,
+  notes: p.notes,
 });
 
 // one production in the library's list

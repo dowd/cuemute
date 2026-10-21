@@ -3,7 +3,7 @@ import Fastify, { type FastifyInstance } from "fastify";
 import fastifyStatic from "@fastify/static";
 import fastifyWebsocket from "@fastify/websocket";
 import { z, ZodError } from "zod";
-import { afterIdFor, productionView, quoteAt, type LinkedScene } from "@cuemute/script";
+import { afterIdFor, departmentSchema, productionView, quoteAt, type LinkedScene } from "@cuemute/script";
 import { readScript, ScriptImportError } from "@cuemute/script/import";
 import { cuemuteApi, cuemuteOrigin } from "./link.ts";
 import { Links } from "./links.ts";
@@ -182,17 +182,8 @@ export async function buildServer(productions: Productions, options: HttpOptions
     const at = wordBody.parse(req.body);
     const position = productions.position(id, at);
     const p = productions.get(id);
-    const cueOf = new Map(p.cues.map((c) => [c.scene, c]));
-    const paragraphIndex = new Map(p.script!.paragraphs.map((x, i) => [x.id, i]));
-    const afterId = afterIdFor(
-      scenes,
-      (s) => {
-        const cue = cueOf.get(s.id);
-        const index = cue ? paragraphIndex.get(cue.at.paragraph) : undefined;
-        return cue && index !== undefined ? { index, word: cue.at.word } : null;
-      },
-      position,
-    );
+    const placed = productions.scenePositions(id);
+    const afterId = afterIdFor(scenes, (s) => placed.get(s.id) ?? null, position);
     const lineRef = quoteAt(p.script!.paragraphs[position.index]!, position.word);
     const { scene } = await cuemuteApi<{ scene: LinkedScene }>(p.link!.url, "POST", "/scenes", { afterId, fields: { lineRef } });
     return { cue: productions.placeScene(id, scene, at) };
@@ -201,6 +192,50 @@ export async function buildServer(productions: Productions, options: HttpOptions
   app.delete("/api/productions/:id/cues/:cue", async (req) => {
     const { id, cue } = z.object({ id: z.string(), cue: z.string() }).parse(req.params);
     productions.removeCue(id, cue);
+    return { ok: true };
+  });
+
+  // --- department cues, notes and departments ---
+
+  const cueParams = z.object({ id: z.string(), cue: z.string() });
+  const noteParams = z.object({ id: z.string(), note: z.string() });
+  const cueFields = z.object({ department: z.string(), number: z.string(), label: z.string(), notes: z.string() });
+  // a new cue's fields; a patch has no defaults, so a field it leaves out stays as it was
+  const newCue = cueFields.extend({ number: z.string().default(""), label: z.string().default(""), notes: z.string().default("") });
+
+  app.post("/api/productions/:id/cues", async (req) => {
+    const { id } = idParams.parse(req.params);
+    const body = newCue.extend({ at: wordBody }).parse(req.body);
+    const { at, ...fields } = body;
+    return { cue: productions.addCue(id, fields, at) };
+  });
+  // changes a department cue's fields, and moves it when the body has "at"
+  app.patch("/api/productions/:id/cues/:cue", async (req) => {
+    const { id, cue } = cueParams.parse(req.params);
+    const { at, ...patch } = cueFields.partial().extend({ at: wordBody.optional() }).strict().parse(req.body);
+    productions.updateCue(id, cue, patch, at);
+    return { ok: true };
+  });
+
+  app.post("/api/productions/:id/notes", async (req) => {
+    const { id } = idParams.parse(req.params);
+    const { text, at } = z.object({ text: z.string(), at: wordBody }).parse(req.body);
+    return { note: productions.addNote(id, text, at) };
+  });
+  app.patch("/api/productions/:id/notes/:note", async (req) => {
+    const { id, note } = noteParams.parse(req.params);
+    const { text, at } = z.object({ text: z.string().optional(), at: wordBody.optional() }).strict().parse(req.body);
+    productions.updateNote(id, note, text, at);
+    return { ok: true };
+  });
+  app.delete("/api/productions/:id/notes/:note", async (req) => {
+    const { id, note } = noteParams.parse(req.params);
+    productions.removeNote(id, note);
+    return { ok: true };
+  });
+
+  app.put("/api/productions/:id/departments", async (req) => {
+    productions.setDepartments(idParams.parse(req.params).id, z.array(departmentSchema).parse(req.body));
     return { ok: true };
   });
 

@@ -213,3 +213,38 @@ header strong { font-size: 18px; }
   .script { padding: 12px 16px 50vh; }
   .production-list li { grid-template-columns: 1fr; grid-template-areas: "name" "hint" "actions"; }
 }
+
+/* department cues and notes */
+select, textarea { font: inherit; color: inherit; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; width: 100%; }
+select:focus, textarea:focus { outline: none; border-color: var(--accent); }
+.cue.dept { border-left: 4px solid; }
+.cue-label { margin-left: 8px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+.line-note {
+  grid-column: 2;
+  justify-self: start;
+  margin: 4px 0 2px;
+  padding: 2px 8px;
+  font-size: 13px;
+  font-style: italic;
+  text-align: left;
+  color: var(--muted-text);
+  background: var(--panel);
+  border: 1px dashed var(--line);
+}
+.line-note:disabled { opacity: 1; cursor: default; }
+.line-note.selected { border-color: var(--text); color: var(--text); }
+.place .dept-button { border-left: 4px solid; }
+.cue-form { align-items: center; }
+.cue-form input { width: auto; flex: 1; min-width: 120px; }
+.cue-form .num-input { flex: 0 0 70px; min-width: 0; }
+.cue-form .dept { font-weight: 700; font-size: 13px; }
+
+.cues-panel .tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.editor { display: flex; flex-direction: column; gap: 8px; padding-bottom: 10px; border-bottom: 1px solid var(--line); margin-bottom: 10px; }
+.editor label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted-text); }
+.editor .row { display: grid; grid-template-columns: 1fr 90px; gap: 8px; }
+.editor .toolbar { align-items: center; justify-content: space-between; }
+.departments { width: 100%; border-collapse: collapse; }
+.departments td { padding: 3px 2px; }
+.departments input[type="color"] { width: 34px; height: 30px; padding: 2px; }
+.departments .code { width: 70px; }

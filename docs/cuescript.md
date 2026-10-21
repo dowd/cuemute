@@ -1,6 +1,6 @@
 # cuescript
 
-cuescript is a prompt book that shows the show's script on any screen, with each cuemute scene marked on the word it goes on. During the show it follows cuemute's live and next scenes. It is in development: cues for other departments come next. [cuescript: design](cuescript-design.md) has the plan.
+cuescript is a prompt book that shows the show's script on any screen. Each cuemute scene, and each cue for other departments such as lighting, is marked on the word it goes on. During the show it follows cuemute's live and next scenes. It is in development: [cuescript: design](cuescript-design.md) has the plan.
 
 ## Start cuescript
 
@@ -45,7 +45,7 @@ The link is open while a screen has the production open. If cuemute isn't runnin
 
 ## Place mute cues
 
-The **Cues** panel lists cuemute's scenes in cuemute's order. A yellow number means the scene isn't placed yet. Each screen opens and closes its own **Cues** panel, and words can only be picked while it is open, so a screen that follows the show never changes a cue by a stray tap.
+The **Mutes** tab of the **Cues** panel lists cuemute's scenes in cuemute's order. A yellow number means the scene isn't placed yet. Each screen opens and closes its own **Cues** panel, and words can only be picked while it is open, so a screen that follows the show never changes a cue by a stray tap.
 
 To place a scene, or move it:
 
@@ -59,6 +59,30 @@ To add a scene at a word, select the word and then **New scene here**. cuemute m
 
 **×** next to a scene takes it out of the script. **Place by Line / cue** tries again for every scene that isn't placed, for example after you change a **Line / cue** in cuemute.
 
+## Add cues for other departments
+
+cuescript shows cues for other departments, such as LX and SFX, on the words they go on. It doesn't fire them.
+
+1. Select **Cues** in the header.
+2. Select the word in the script that the cue goes on.
+3. Select the department, for example **+ LX**.
+4. Check the number, and type a label, such as `Blackout`.
+5. Select **Add**.
+
+The number starts as one more than the department's last cue before it in the script. Type a different one, such as `14.5`, if you need it.
+
+The cue shows in the margin and on its word in the department's colour, with its label beside the line. To change a cue, select it in the margin or in the **Cues** tab, then change its fields. Each field saves when you leave it. To move a cue, select it, then select a word and **Move … here**.
+
+## Add notes
+
+A note is a short text on a line, such as `Felix's mic is often late here`. Select a word, then **+ Note**, type the note, and select **Add**. It shows under the line. Select a note to change, move or delete it.
+
+## Change the departments
+
+The **Departments** tab lists the departments, with a colour, a name and a code. The code shows with each cue number, such as `LX 14`. Select **Add department** to add one, and **Save** to keep the changes.
+
+You can't delete the mutes department, because its cues come from cuemute. You can't delete a department that has cues: delete its cues first.
+
 ## Follow the show
 
 While cuemute is linked, the script keeps the next scene's line a third of the way down. The next scene's line is green, and the live scene's line is blue. If the next scene isn't placed, the script stays at the last placed scene before it. The strip at the top always names the live and next scenes.
@@ -67,7 +91,12 @@ If you scroll the script, it stops following. Select **Follow cues** to start ag
 
 ## Import a new version of the script
 
-Select **Import new version…**. cuescript finds each cue again by the words that end at it, so cues stay in place when lines move. If those words were cut or changed, the cue is dropped, and its scene shows as not placed. While cuemute is linked, cuescript then tries those scenes again by their **Line / cue**.
+Select **Import new version…**. cuescript finds each cue and note again by the words that end at it, so they stay in place when lines move.
+
+If those words were cut or changed:
+
+- A mute cue is dropped, and its scene shows as not placed. While cuemute is linked, cuescript tries those scenes again by their **Line / cue**.
+- A department cue or note stays, but unplaced. The **Cues** tab lists them first. Select one, then a word, and **Move … here**.
 
 ## Move a production to another computer
 
