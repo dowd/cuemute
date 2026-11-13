@@ -262,6 +262,7 @@ const TYPES: Record<string, string> = {
   png: "image/png",
   ico: "image/x-icon",
   json: "application/json",
+  webmanifest: "application/manifest+json",
 };
 
 const contentType = (path: string) => TYPES[path.split(".").pop() ?? ""] ?? "application/octet-stream";

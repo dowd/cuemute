@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import { linkOff, type LinkState, type ProductionView } from "@cuemute/script";
+import { readSaved, saveForOffline } from "./offline.ts";
 
 const RETRY_MS = 1000;
+// how long to wait for the server before showing the saved copy
+const SAVED_AFTER_MS = 2000;
 
 // Waits until the server answers over plain HTTP. Firefox delays a WebSocket
 // to an address after each refused connection, longer each time and for every
@@ -32,6 +35,7 @@ export function useProduction(id: string): ProductionState {
     let socket: WebSocket | null = null;
     let retry: ReturnType<typeof setTimeout> | undefined;
     let closed = false;
+    let savedTried = false;
 
     const open = () => {
       const proto = location.protocol === "https:" ? "wss" : "ws";
@@ -45,6 +49,8 @@ export function useProduction(id: string): ProductionState {
         };
         if (msg.production) {
           const production = msg.production;
+          // the same view GET /api/productions/:id answers with
+          saveForOffline(`/productions/${encodeURIComponent(id)}`, production);
           setState((s) => ({ status: "ready", production, link: s.status === "ready" ? s.link : linkOff, online: true }));
         } else if (msg.link) {
           const link = msg.link;
@@ -56,13 +62,29 @@ export function useProduction(id: string): ProductionState {
       };
       socket.onclose = () => {
         setState((s) => (s.status === "ready" ? { ...s, online: false } : s));
+        useSaved();
         if (!closed) retry = setTimeout(() => serverUp().then(() => !closed && open()), RETRY_MS);
       };
     };
+    // If nothing has come yet, the server can't be reached; show the copy this
+    // device saved earlier, if there is one. A server that doesn't answer at all
+    // can leave the socket neither open nor closed, so this also runs on a timer.
+    const useSaved = () => {
+      if (closed || savedTried) return;
+      savedTried = true;
+      readSaved<ProductionView>(`/productions/${encodeURIComponent(id)}`)
+        .then((production) => {
+          if (production) setState((s) => (s.status === "loading" ? { status: "ready", production, link: linkOff, online: false } : s));
+        })
+        .catch(() => {});
+    };
+    const savedTimer = setTimeout(useSaved, SAVED_AFTER_MS);
+
     open();
 
     return () => {
       closed = true;
+      clearTimeout(savedTimer);
       clearTimeout(retry);
       socket?.close();
     };

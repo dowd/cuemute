@@ -12,6 +12,28 @@ npm run start:cuescript
 
 Then open <http://127.0.0.1:4001>. cuescript has no single-file build yet.
 
+## Use cuescript on an iPad
+
+cuescript runs on the show Mac, and an iPad opens it over the network. Added to the Home Screen, it opens full screen with its own icon, like an app.
+
+1. Start cuescript so that other devices can connect:
+
+    ```sh
+    CUESCRIPT_HOST=0.0.0.0 npm run start:cuescript
+    ```
+
+2. Find the Mac's address in **System Settings > Wi-Fi > Details**, for example `192.168.1.10`.
+3. On the iPad, open Safari and go to `http://192.168.1.10:4001`.
+4. Select the Share button, then **Add to Home Screen**.
+
+The iPad must be on the same network as the Mac. The cuescript icon opens the production list. Each iPad keeps its own **Show** and **Cues** choices.
+
+### Read a production with no connection
+
+cuescript can keep a copy of each production you open, to read when the server can't be reached. The page then says **Server unreachable**, shows the script and cues as they last were, and connects again by itself when the server is back. You can't make changes until it does.
+
+Browsers only allow this on a secure page: on the show Mac itself at `http://127.0.0.1:4001`, or a cuescript served over HTTPS. An iPad on plain `http://` over the network gets the Home Screen app, but no copy for offline.
+
 ## Add a production
 
 A production holds one show's script, and later its cues and notes.

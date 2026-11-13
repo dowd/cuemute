@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- cuescript: a script page with cue marks in its margin -->
+  <rect width="512" height="512" rx="112" fill="#121417"/>
+  <rect x="150" y="96" width="260" height="320" rx="18" fill="#e6e8eb"/>
+  <g fill="#9aa1ab">
+    <rect x="190" y="146" width="180" height="16" rx="8"/>
+    <rect x="190" y="186" width="150" height="16" rx="8"/>
+    <rect x="190" y="226" width="180" height="16" rx="8"/>
+    <rect x="190" y="306" width="160" height="16" rx="8"/>
+    <rect x="190" y="346" width="120" height="16" rx="8"/>
+  </g>
+  <rect x="190" y="266" width="170" height="16" rx="8" fill="#2e9e4f"/>
+  <rect x="92" y="252" width="76" height="44" rx="10" fill="#2e9e4f"/>
+  <rect x="92" y="332" width="76" height="44" rx="10" fill="#e6b84a"/>
+</svg>

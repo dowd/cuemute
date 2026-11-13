@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { Script, ScriptInfo } from "@cuemute/script";
 import { api } from "./api.ts";
+import { saveForOffline } from "./offline.ts";
 
 // A production's script. Updates only say which script is in, so the text is
 // fetched again only when a different one is imported.
@@ -14,8 +15,12 @@ export function useScript(productionId: string, info: ScriptInfo | null): Script
       return;
     }
     let stale = false;
-    api<{ script: Script | null }>("GET", `/productions/${encodeURIComponent(productionId)}/script`)
-      .then((r) => !stale && setScript(r.script))
+    const path = `/productions/${encodeURIComponent(productionId)}/script`;
+    api<{ script: Script | null }>("GET", path)
+      .then((r) => {
+        saveForOffline(path, r);
+        if (!stale) setScript(r.script);
+      })
       .catch(() => !stale && setScript(null));
     return () => {
       stale = true;
